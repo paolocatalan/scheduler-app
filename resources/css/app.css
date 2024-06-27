@@ -1,0 +1,99 @@
+* {
+    font-family: "Source Code Pro", monospace;
+}
+
+body {
+  max-width: 980px;
+  font-family: "Source Code Pro", monospace;
+  font-optical-sizing: auto;
+  font-style: normal;
+  font-size: .8rem;
+  font-weight: 500;
+  line-height: 1.9;
+}
+
+.navbar ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar li {
+  display: inline;
+  padding: 8px 12px;
+}
+
+.bookers-details {
+  display: block;
+}
+
+.calendar {
+  display: block;
+}
+
+.calendar-date-picker {
+  max-width: 480px;
+}
+
+.calendar-date-picker .month-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.calendar-date-picker .month-header h2 {
+  display: inline-block;
+}
+
+.calendar-date-picker .month-header nav button {
+  margin: 0 2px;
+}
+
+.calendar-date-picker h2 {
+  display: inline-block
+}
+
+.calendar-date-picker table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.calendar-date-picker table, .calendar-date-picker td, .calendar-date-picker th {
+  border: 1px solid #222;
+  text-align: center;
+  padding: 0;
+}
+
+.calendar-date-picker td > div {
+display:block;
+width:100%;
+cursor: pointer;
+}
+
+.calendar-date-picker .not-available {
+  opacity: .3;
+}
+
+.calendar-date-picker .today {
+  text-decoration: underline;
+}
+
+.calendar-date-picker .active {
+  background:#e9e9ed;
+}
+
+@media only screen and (min-width: 768px) {
+  .calendar {
+      display: grid;
+      grid-template-columns: 480px auto;
+      gap: 25px;
+  }
+
+  .bookers-details {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 25px;
+  }
+}
