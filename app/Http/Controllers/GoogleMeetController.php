@@ -33,13 +33,13 @@ class GoogleMeetController extends Controller
     // return response()->json(['message' => 'saved event.']);
   }
 
-  public static function createEvent($name, $startDateTime, $timezone, $attendee = null)
+  public static function createEvent($event_title, $start_DateTime, $timezone, $attendee = null)
   {
     try {
       $event = new Event;
-      $event->name = $name;
-      $event->startDateTime = \Carbon\Carbon::parse($startDateTime);
-      $event->endDateTime = \Carbon\Carbon::parse($startDateTime)->addMinute(30);
+      $event->name = $event_title;
+      $event->startDateTime = \Carbon\Carbon::parse($start_DateTime);
+      $event->endDateTime = \Carbon\Carbon::parse($start_DateTime)->addMinute(30);
       $event->start->timeZone = $timezone;
       $event->end->timeZone = $timezone;
       // requires Google Workspace subscription

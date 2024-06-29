@@ -100,7 +100,7 @@ class Booker
             } elseif (in_array($date, $booked_dates)) {
                 $calendar .= '<td class="not-available"><span>'. $current_day .'</span>';
             } else {
-                $calendar .= '<td'. $active_navlink .'><div hx-get="/schedule-a-call/?year=' . date('Y', mktime(0, 0, 0, $month, $current_day, $year)) . '&month=' . date('m', mktime(0, 0, 0, $month, $current_day, $year)) . '&date=' . $date .'&timezone='. $timezone_selected .'" hx-target="body" hx-push-url="/schedule-a-call/?date='. $date .'"  hx-swap="innerHTML"><span'. $today_indicator .'>' . $current_day .'</span></div>';
+                $calendar .= '<td'. $active_navlink .'><div hx-get="/schedule-a-call/?year=' . date('Y', mktime(0, 0, 0, $month, $current_day, $year)) . '&month=' . date('m', mktime(0, 0, 0, $month, $current_day, $year)) . '&date=' . $date .'&timezone='. $timezone_selected .'" hx-push-url="/schedule-a-call/?date='. $date .'"  hx-target="body"><span'. $today_indicator .'>' . $current_day .'</span></div>';
             }
 
             $calendar .= '</td>';
@@ -122,7 +122,7 @@ class Booker
 
   }
 
-  public static function buildTimeslot($date, $timezone_selected) {
+  public static function buildTimeslot($date, $timezone) {
 
     // get the booked timeslots
     $bookings = Booking::where('schedule_call', '>', date('Y-m-d H:i:s'))->get();
@@ -133,7 +133,7 @@ class Booker
         if ($booked_date == $date) {
             $booked_timeslots = $booking->schedule_call;
             $timezone_to = $booking->timezone;
-            $timezone_from = $timezone_selected;
+            $timezone_from = $timezone;
             $booked_date_converted = Booker::timezoneConverter($booked_timeslots, $timezone_to, $timezone_from);
             $booked_timeslot[] = substr($booked_date_converted, 11);
         } else {
@@ -145,8 +145,8 @@ class Booker
     $close_time = $date . ' 17:00:00';
     $current_date_time = date('Y-m-d H:i:s');
 
-    if ($timezone_selected != date_default_timezone_get()) {
-        $timezone_to = $timezone_selected;
+    if ($timezone != date_default_timezone_get()) {
+        $timezone_to = $timezone;
         $timezone_from = date_default_timezone_get();
         $open_time = Booker::timezoneConverter($open_time, $timezone_to, $timezone_from);
         $close_time = Booker::timezoneConverter($close_time, $timezone_to, $timezone_from);
@@ -167,11 +167,11 @@ class Booker
     echo '<p><strong>'. date_format(date_create($date), 'D') .'</strong> '. date_format(date_create($date), 'j') .'</p>'; 
     echo '<ul>';
     foreach ($timeslots as $timeslot) {
-        if (in_array($timeslot, $booked_timeslot)) {
+        if ( !empty($booked_timeslot) && in_array($timeslot, $booked_timeslot)) {
             echo '<li>'. date('g:i a', strtotime($timeslot)) .'</li>';
         } else {
             $timestamp = strtotime($date . ' ' . $timeslot);
-            echo '<li><a href="/schedule-a-call/introduction?date='. $date .'&time='. $timestamp .'&timezone='. $timezone_selected .'" hx-get="/schedule-a-call/introduction?date='. $date .'&time='. $timestamp .'&timezone='. $timezone_selected .'" hx-push-url="/schedule-a-call/introduction?date='. $date .'&time='. $timestamp .'&timezone='. $timezone_selected .'" hx-target="body" hx-swap="innerHTML">'. date('g:i a', strtotime($timeslot)) .'</a></li>';
+            echo '<li><a href="/schedule-a-call/introduction?date='. $date .'&time='. $timestamp .'&timezone='. $timezone .'" hx-get="/schedule-a-call/introduction?date='. $date .'&time='. $timestamp .'&timezone='. $timezone .'" hx-push-url="true" hx-target="body">'. date('g:i a', strtotime($timeslot)) .'</a></li>';
         }
     }
     echo '</ul>';

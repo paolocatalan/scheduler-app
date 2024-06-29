@@ -26,7 +26,7 @@ class SessionController extends Controller
         //security feature
         request()->session()->regenerate();
 
-        return redirect('/projects');
+        return redirect()->intended('/projects');
 
     }
 

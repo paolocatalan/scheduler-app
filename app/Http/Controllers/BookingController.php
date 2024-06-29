@@ -46,16 +46,24 @@ class BookingController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         $date = (isset($_GET['date'])) ? $_GET['date'] : '';
         $timestamp = (isset($_GET['time'])) ? $_GET['time'] : '';
         $timezone = (isset($_GET['timezone'])) ? $_GET['timezone'] : '';
-        return view('sections.bookings.create', [
+
+        // add if the page is refreshed
+        // $is_page_refreshed = (isset($_SERVER['HTTP_CACHE_CONTROL']) && $_SERVER['HTTP_CACHE_CONTROL'] == 'max-age=0');
+
+        if ($request->header('HX-Request')) {
+            return view('sections.bookings.create', [
             'date' => $date,
             'timestamp' => $timestamp,
             'timezone' => $timezone
-        ]);
+            ]);
+        }
+
+        return redirect('/schedule-a-call');
     }
 
     /**
@@ -64,40 +72,42 @@ class BookingController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'schedule_call' => 'required|date|date_format:Y-m-d H:s:i|after:now',
+            'schedule_call' => 'bail|required|date|date_format:Y-m-d H:s:i|after:now',
             'timezone' => 'required|timezone:all',
             'name' => 'required',
             'email' => 'required|email:strict',
             'notes' => 'required',
+        ], [
+            'name.required' => 'Name Required! Let\'s not be strangers!',
+            'email.required' => 'We definitely need your email address!',
+            'email.email' => 'Hmm, that doesn\'t look like a valid email.',
+            'notes.required' => 'Hey! Additional notes needed. Got any fun facts or extra details?'
         ]);
     
         if ($validator->fails()) {
-            return view('components.error-message', [
-                'errors' => $validator->errors(),
-            ]);
-
-        } else {
-            Booking::create([
-                'schedule_call' => $request->schedule_call,
-                'timezone' => $request->timezone,
-                'name' => $request->name,
-                'email' => $request->email,
-                'notes' => $request->notes
-            ]);
-
-            $event_name = 'Introduction and Diagnosis';
-            $startDateTime = $request->schedule_call;
-            $timezone = $request->timezone;
-            GoogleMeetController::createEvent($event_name, $startDateTime, $timezone);
-
-            $name = $request->name;
-            $date = date('l, F j, Y, g:i a', strtotime($request->schedule_call));
-            Mail::to('paolo_catalan@yahoo.com')->send(new BookingSuccess($name, $date));
-
-            return response()
-                    // ->json(['message' => 'Form submitted successfully.'])
-                    ->header('HX-Redirect', route('booking.success.route'));
+            return redirect()->back()->withErrors($validator)->withInput();
         }
+
+        Booking::create([
+            'schedule_call' => $request->schedule_call,
+            'timezone' => $request->timezone,
+            'name' => $request->name,
+            'email' => $request->email,
+            'notes' => $request->notes
+        ]);
+
+        $event_title = 'Introduction and Diagnosis';
+        $start_DateTime = $request->schedule_call;
+        $timezone = $request->timezone;
+        GoogleMeetController::createEvent($event_title, $start_DateTime, $timezone);
+
+        $name = $request->name;
+        $date = date('l, F j, Y, g:i a', strtotime($request->schedule_call));
+        Mail::to('paolo_catalan@yahoo.com')->send(new BookingSuccess($name, $date));
+
+        return response()->noContent()
+                ->header('HX-Redirect', route('booking.success.route'));
+
     }
 
     /**

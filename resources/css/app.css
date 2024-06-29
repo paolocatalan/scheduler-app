@@ -83,6 +83,36 @@ cursor: pointer;
 .calendar-date-picker .active {
   background:#e9e9ed;
 }
+.bookers-details form {
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+}
+
+.bookers-details label {
+  margin-top: 10px;
+}
+
+.bookers-details form input[type=text],
+.bookers-details form input[type=email] {
+  padding: 6px 10px;
+}
+
+.bookers-details form textarea {
+  font-size: .8rem;
+  padding: 6px 10px;
+}
+
+.bookers-details form .form-footer {
+  margin-top: 25px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.bookers-details form .form-footer input[type=submit] {
+  margin-left: 25px;
+}
 
 @media only screen and (min-width: 768px) {
   .calendar {
