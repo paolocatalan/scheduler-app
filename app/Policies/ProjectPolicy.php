@@ -8,6 +8,11 @@ use Illuminate\Auth\Access\Response;
 
 class ProjectPolicy
 {
+    public function create(User $user): bool
+    {
+        return $user->id == 1;
+    }
+
     public function view(User $user, Project $project): bool
     {
         return $user->id === $project->user_id;
@@ -18,8 +23,9 @@ class ProjectPolicy
         return $user->id === $project->user_id;
     }
 
-    public function delete(User $user): bool
+    public function delete(User $user, Project $project): bool
     {
-        return $user->id === 4;
+        return $user->id === $project->user_id;
     }
+
 }

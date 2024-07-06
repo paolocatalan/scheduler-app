@@ -21,6 +21,7 @@ class ProjectFactory extends Factory
             'user_id' => 1,
             'title' => $this->faker->sentence(),
             'slug' => $this->faker->slug(),
+            'excerpt' => collect($this->faker->paragraphs(1))->map(fn($item) => "{$item}")->implode(''),
             'body'  => collect($this->faker->paragraphs(6))->map(fn($item) => "<p>{$item}</p>")->implode(''),
         ];
     }

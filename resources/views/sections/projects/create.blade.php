@@ -2,7 +2,7 @@
 @section('content')
   <main>
     <h1>Create Project</h1>
-    <form method="post" enctype="multipart/form-data" action="/projects">
+    <form method="post" enctype="multipart/form-data" action="{{ route('projects.create') }}">
       @csrf
       <label for="title">Title</label><br>
       <input type="text" id="title" name="title" required><br>
@@ -13,6 +13,12 @@
       <label for="slug">slug</label><br>
       <input type="text" id="slug" name="slug" required><br>
       @error('slug')
+        <small style="color:#d32f2f;">{{ $message }}</small>
+      @enderror
+      <br>
+      <label for="excerpt">Excerpt</label><br>
+      <textarea id="excerpt" name="excerpt" required></textarea><br>
+      @error('excerpt')
         <small style="color:#d32f2f;">{{ $message }}</small>
       @enderror
       <br>

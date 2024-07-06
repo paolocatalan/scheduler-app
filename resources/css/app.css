@@ -1,15 +1,17 @@
 * {
-    font-family: "Source Code Pro", monospace;
+  Font-family: Consolas, monaco, monospace;
 }
 
 body {
   max-width: 980px;
-  font-family: "Source Code Pro", monospace;
-  font-optical-sizing: auto;
-  font-style: normal;
-  font-size: .8rem;
-  font-weight: 500;
-  line-height: 1.9;
+  Font-family: Consolas, monaco, monospace;
+  font-size: .875em;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+pre {
+  line-height: initial;
 }
 
 .navbar ul {
@@ -114,6 +116,15 @@ cursor: pointer;
   margin-left: 25px;
 }
 
+.grid-cards .cards figure {
+  margin: 0;
+}
+
+.grid-cards .cards figure img {
+  object-fit: cover;
+  width: 100%;
+}
+
 @media only screen and (min-width: 768px) {
   .calendar {
       display: grid;
@@ -126,4 +137,11 @@ cursor: pointer;
     grid-template-columns: auto auto;
     gap: 25px;
   }
+
+  .grid-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 25px;
+  }
 }
+

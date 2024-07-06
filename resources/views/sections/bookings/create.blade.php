@@ -11,7 +11,7 @@
             <p>Google Meet</p>
         </div>
         <div>
-            <form method="post" action="/schedule-a-call/store" hx-post="/schedule-a-call/store" hx-target="body" hx-indicator="#loading-indicator" hx-disinherit="hx-indicator">
+            <form method="post" action="/schedule-a-call" hx-post="/schedule-a-call" hx-target="body" hx-indicator="#loading-indicator" hx-disinherit="hx-indicator">
                 @csrf
                 <input type="hidden" id="schedule_call" name="schedule_call" value="<?php echo date('Y-m-d H:i:s', $timestamp); ?>">
                 <input type="hidden" id="timezone" name="timezone" value="<?php echo $timezone; ?>"> 

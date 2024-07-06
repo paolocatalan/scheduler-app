@@ -3,51 +3,64 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use App\Http\Requests\StoreProjectRequest;
+use App\Http\Requests\UpdateProjectRequest;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class ProjectController extends Controller
+class ProjectController extends Controller implements HasMiddleware
 {
-    public function index() {
-        $projects = Project::orderBy('updated_at', 'DESC')->simplePaginate(10);
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('auth', except: ['index', 'show'])
+        ];
+    }
+
+    public function index()
+    {
+        $projects = Project::orderBy('updated_at', 'DESC')->simplePaginate(9);
 
         return view('sections.projects.index', [
             'projects' => $projects
         ]);
     }
 
-    public function create() {
+    public function create()
+    {
+        Gate::authorize('create', Project::class);
+
         return view('sections.projects.create');
     }
 
-    public function show($slug) {
-        $project = Project::where('slug', $slug)->first();
+    public function store(StoreProjectRequest $request)
+    {
+        Gate::authorize('create', Project::class);
 
+        $request->validated();
+
+        Project::create([
+            'title' => $request->title,
+            'slug' => $request->slug,
+            'excerpt' => $request->excerpt,
+            'body' => $request->body,
+            'thumbnail' => $request->file('thumbnail')->store('thumbnails'),
+            'user_id' => auth()->user()->id
+        ]);
+
+        return redirect('/projects')->with('message', 'Your project has been added.');
+    }
+
+    public function show(Project $project)
+    {
         return view('sections.projects.show', [
             'project' => $project
         ]);
     }
 
-    public function store(Request $request) {
-        $validated = $request->validate([
-            'title' => ['required', 'min:3'],
-            'body' => 'required',
-            'slug' => ['required', Rule::unique('projects', 'slug')],
-            'thumbnail' => 'required|image'
-        ]);
-
-        $validated['user_id'] = auth()->user()->id;
-        $validated['thumbnail'] = request()->file('thumbnail')->store('thumbnails');
-
-        Project::create($validated);
-
-        return redirect('/projects')->with('message', 'Your project has been added.');
-    }
-
-    public function edit($slug) {
-        $project = Project::where('slug', $slug)->first();
-
+    public function edit(Project $project)
+    {
         Gate::authorize('update', $project);
 
         return view('sections.projects.edit', [
@@ -55,18 +68,13 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function update(Request $request, $slug) {
-        $project = Project::where('slug', $slug)->first();
-        //Authorize
+    public function update(UpdateProjectRequest $request, Project $project)
+    {
+        //authorize
         Gate::authorize('update', $project);
 
-        // validate
-        $validated = $request->validate([
-            'title' => ['required', 'min:3'],
-            'slug' => ['required', Rule::unique('projects', 'slug')->ignore($project->id)],
-            'body' => 'required',
-            'thumbnail' => 'image'
-        ]);
+        //validate
+        $validated = $request->validated();
 
         if (isset($validated['thumbnail'])) {
             $validated['thumbnail'] = request()->file('thumbnail')->store('thumbnails');
@@ -76,12 +84,11 @@ class ProjectController extends Controller
         $project->update($validated);
 
         // redirect
-        return back()->with('message', 'Your project has been updated.');
+        return redirect('/projects/' . $project->slug . '/edit' )->with('message', 'Your project has been updated.');
     }
 
-    public function destroy($slug) {
-        $project = Project::where('slug', $slug)->first();
-        
+    public function destroy(Project $project)
+    {
         Gate::authorize('delete', $project);
 
         $project->delete();

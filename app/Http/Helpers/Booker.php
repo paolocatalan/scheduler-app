@@ -122,14 +122,13 @@ class Booker
 
   }
 
-  public static function buildTimeslot($date, $timezone) {
-
+  public static function bookedTimeslots($date, $timezone) {
     // get the booked timeslots
     $bookings = Booking::where('schedule_call', '>', date('Y-m-d H:i:s'))->get();
+    $booked_timeslot = array();
     foreach ($bookings as $booking) {
         $booked_dates = $booking->schedule_call;
         $booked_date = date('Y-m-d', strtotime($booked_dates));
-        $booked_timeslots = array();
         if ($booked_date == $date) {
             $booked_timeslots = $booking->schedule_call;
             $timezone_to = $booking->timezone;
@@ -140,6 +139,14 @@ class Booker
             $booked_timeslot[] = '';
         }
     }
+
+    return $booked_timeslot;
+
+  }
+
+  public static function buildTimeslot($date, $timezone) {
+
+    $booked_timeslot = Booker::bookedTimeslots($date, $timezone);
 
     $open_time = $date . ' 9:00:00';
     $close_time = $date . ' 17:00:00';

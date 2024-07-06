@@ -11,10 +11,15 @@ class Project extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
-    // protected $fillable = ['title', 'body', 'user_id'];
+    protected $fillable = ['title', 'slug', 'excerpt', 'body', 'user_id', 'thumbnail'];
 
-    public function user() {
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 }

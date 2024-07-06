@@ -2,53 +2,60 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\BookingServices;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Spatie\GoogleCalendar\Event;
 
 class GoogleMeetController extends Controller
 {
-  public function index() {
-    $event_name = 'Introduction and Diagnosis';
-    $startDateTime = '2024-09-09 10:00:00';
-    $timezone = 'Europe/Warsaw';
-    GoogleMeetController::createEvent($event_name, $startDateTime, $timezone);
 
-    return 'added Throw';
+  public function index() {
+    $startDateTime = '2024-12-14 11:00:00';
+    $timezone = 'Europe/Warsaw';
+    $attendee = 'samaltman@openai.com';
     // $events = Event::get();
     // $event = Event::find('3lvkn81opdd59o121c3a466un8');
-    // $timezone = 'Europe/Warsaw';
+    // $event = Event::find('4cp2otegsk1ik18jedb09u8agc');
     // $event = new Event;
-    // $event->name = $name;
-    // $email = 'samaltman@openai.com';
-    // $startDate = '2024-08-16 10:00:00';
-    // $event->startDateTime = \Carbon\Carbon::parse($startDate);
-    // $event->endDateTime = \Carbon\Carbon::parse($startDate)->addMinute(30);
+    // $event->name = 'Intro and Diagnosis';
+    // $event->startDateTime = \Carbon\Carbon::parse($startDateTime);
+    // $event->endDateTime = \Carbon\Carbon::parse($startDateTime)->addMinute(30);
     // $event->start->timeZone = $timezone;
     // $event->end->timeZone = $timezone;
-
+    // $event->addAttendee(['email' => $attendee]);
     // $event->save();
-    // dd($event);
-
     // return response()->json(['message' => 'saved event.']);
+
+    // $event = GoogleMeetController::create($eventTitle, $startDateTime, $timezone);
+    $htmlLink = BookingServices::calendarEvent($startDateTime, $timezone, $attendee);
+
+    dd($htmlLink);
+
   }
 
-  public static function createEvent($event_title, $start_DateTime, $timezone, $attendee = null)
+  public function create($eventTitle, $startDateTime, $timezone, $attendee = null)
   {
     try {
       $event = new Event;
-      $event->name = $event_title;
-      $event->startDateTime = \Carbon\Carbon::parse($start_DateTime);
-      $event->endDateTime = \Carbon\Carbon::parse($start_DateTime)->addMinute(30);
+      $event->name = $eventTitle;
+      $event->startDateTime = \Carbon\Carbon::parse($startDateTime);
+      $event->endDateTime = \Carbon\Carbon::parse($startDateTime)->addMinute(30);
       $event->start->timeZone = $timezone;
       $event->end->timeZone = $timezone;
       // requires Google Workspace subscription
       // $event->addAttendee(['email' => $attendee]);
       // $event->addMeetLink();
       // $event->description = 'Confirmed Meeting with '. $attendee;
-      $event->save();
+      $calendarEvent = $event->save();
+            
+      // $calendarEvent->hangoutLink;
+      // $calendarEvent->id;
+
+      return $calendarEvent->htmlLink;
+
     } catch (\Throwable $e) {
       report($e);
     }
   }
+
 }

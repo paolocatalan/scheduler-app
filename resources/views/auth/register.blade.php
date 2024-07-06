@@ -2,7 +2,7 @@
 @section('content')
   <main>
     <h1>Register</h1>
-    <form method="post" action="/register/store" hx-post="/register/store" hx-target="body">
+    <form method="post" action="/register" hx-post="/register" hx-target="body">
       @csrf
       <label for="name">Name</label><br>
       <input type="name" id="name" name="name" value="{{ old('name') }}"><br>

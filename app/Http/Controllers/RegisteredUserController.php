@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Auth\Events\Registered;
 
 class RegisteredUserController extends Controller
 {
@@ -17,7 +18,7 @@ class RegisteredUserController extends Controller
     public function store(Request $request) {
         $validated = $request->validate([
             'name' => 'required',
-            'email' => 'required|email:strict',
+            'email' => 'required|email:strict|unique:users',
             'password' => ['required', Password::min(6), 'confirmed']
             ], [
             'name.required' => 'Name Required! Let\'s not be strangers!',
@@ -27,8 +28,10 @@ class RegisteredUserController extends Controller
 
         $user = User::create($validated);
 
+        event(new Registered($user));
+
         Auth::login($user);
 
-        return redirect('/projects');
+        return view('auth.verify-email');
     }
 }

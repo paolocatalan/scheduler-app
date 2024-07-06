@@ -33,6 +33,6 @@ class SessionController extends Controller
     public function destroy() {
         Auth::logout();
 
-        return redirect('/');
+        return redirect('/')->with('message', 'You have been successfully logged out.');
     }
 }

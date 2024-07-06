@@ -3,13 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Helpers\Booker;
-use App\Http\Controllers\GoogleMeetController;
-use App\Mail\BookingSuccess;
+use App\Http\Requests\StoreBookingRequest;
+use App\Mail\BookingSuccessMail;
 use App\Models\Booking;
-
+use App\Services\BookingServices;
 
 class BookingController extends Controller
 {
@@ -69,25 +68,8 @@ class BookingController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreBookingRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'schedule_call' => 'bail|required|date|date_format:Y-m-d H:s:i|after:now',
-            'timezone' => 'required|timezone:all',
-            'name' => 'required',
-            'email' => 'required|email:strict',
-            'notes' => 'required',
-        ], [
-            'name.required' => 'Name Required! Let\'s not be strangers!',
-            'email.required' => 'We definitely need your email address!',
-            'email.email' => 'Hmm, that doesn\'t look like a valid email.',
-            'notes.required' => 'Hey! Additional notes needed. Got any fun facts or extra details?'
-        ]);
-    
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
         Booking::create([
             'schedule_call' => $request->schedule_call,
             'timezone' => $request->timezone,
@@ -96,17 +78,11 @@ class BookingController extends Controller
             'notes' => $request->notes
         ]);
 
-        $event_title = 'Introduction and Diagnosis';
-        $start_DateTime = $request->schedule_call;
-        $timezone = $request->timezone;
-        GoogleMeetController::createEvent($event_title, $start_DateTime, $timezone);
-
-        $name = $request->name;
-        $date = date('l, F j, Y, g:i a', strtotime($request->schedule_call));
-        Mail::to('paolo_catalan@yahoo.com')->send(new BookingSuccess($name, $date));
+        $htmlLink = BookingServices::calendarEvent($request->schedule_call, $request->timezone, $request->email);
+        Mail::to('paolo_catalan@yahoo.com')->send(new BookingSuccessMail($request->name, $request->schedule_call, $htmlLink));
 
         return response()->noContent()
-                ->header('HX-Redirect', route('booking.success.route'));
+                ->header('HX-Redirect', route('booking.success'));
 
     }
 
