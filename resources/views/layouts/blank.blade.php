@@ -11,13 +11,12 @@
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
-  @include('layouts.navigation')
   <main class="site-content">
     @if (session()->has('message'))
-      <div>
-        <p>{{ session()->get('message') }}</p>
-      </div>
-    @endif
+    <div>
+      <p>{{ session()->get('message') }}</p>
+    </div>
+  @endif
     @yield('content')
   </main>
 </body>

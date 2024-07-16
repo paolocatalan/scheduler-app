@@ -9,6 +9,8 @@ use App\Http\Requests\StoreBookingRequest;
 use App\Mail\BookingSuccessMail;
 use App\Models\Booking;
 use App\Services\BookingServices;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Cookie;
 
 class BookingController extends Controller
 {
@@ -17,28 +19,22 @@ class BookingController extends Controller
      */
     public function index(Request $request)
     {
-        $timezone_selected = (isset($_GET['timezone'])) ? $_GET['timezone'] : 'Europe/Kyiv'; // get the clients timezone
-        $date_request = $request->query('date');
-        $current_date_time = date('Y-m-d H:i:s');
-        $current_date_time = new \DateTime($current_date_time, new \DateTimeZone($timezone_selected));
-        $current_date = $current_date_time->format('Y-m-d');
-        $date_request = ($date_request == true) ? $date_request : $current_date;
-        $date = Booker::dateChecker($date_request, $timezone_selected);
-        $year = date('Y', strtotime($date));
-        $month = date('m', strtotime($date));
+        $timezone = (isset($_GET['timezone'])) ? $_GET['timezone'] : 'Asia/Manila'; // get the clients timezone
+        $dateSelected = ($request->date) ? new Carbon($request->date, $timezone) : Carbon::now($timezone);
+        $dateChecked = Booker::dateChecker($dateSelected, $timezone);
+        $calendar = new Booker($dateChecked->format('Y'), $dateChecked->format('m'), $dateChecked->format('Y-m-d'), $timezone);
 
-        if ($date_request == true && $date_request != $date) {
-            return redirect( request()->url() . '/?date=' . $date );
+
+        if (!$request->date || $dateSelected->format('Y-m-d') != $dateChecked->format('Y-m-d')) {
+            return redirect( request()->url() . '/?date=' . $dateChecked->format('Y-m-d') )->with('timezone', $timezone);
         }
 
-        $booking = Booking::where('schedule_call', '>', date('Y-m-d H:i:s'))->get();
-
         return view('sections.bookings.index', [
-            'booking' => $booking,
-            'timezone_selected' => $timezone_selected,
-            'date' => $date,
-            'year' => $year,
-            'month'=> $month
+            'calendar' => $calendar,
+            'timezone' => $timezone,
+            'date' => $dateChecked->format('Y-m-d'),
+            'year' => $dateChecked->format('Y'),
+            'month'=>  $dateChecked->format('m')
         ]);
     }
 
@@ -47,22 +43,18 @@ class BookingController extends Controller
      */
     public function create(Request $request)
     {
-        $date = (isset($_GET['date'])) ? $_GET['date'] : '';
-        $timestamp = (isset($_GET['time'])) ? $_GET['time'] : '';
-        $timezone = (isset($_GET['timezone'])) ? $_GET['timezone'] : '';
-
         // add if the page is refreshed
         // $is_page_refreshed = (isset($_SERVER['HTTP_CACHE_CONTROL']) && $_SERVER['HTTP_CACHE_CONTROL'] == 'max-age=0');
 
-        if ($request->header('HX-Request')) {
-            return view('sections.bookings.create', [
-            'date' => $date,
-            'timestamp' => $timestamp,
-            'timezone' => $timezone
-            ]);
-        }
+        // if (!$request->header('HX-Request')) {
+        //     return redirect('/schedule-a-call/?date' . date('Y-m-d'));
+        // }
 
-        return redirect('/schedule-a-call');
+        return view('sections.bookings.create', [
+            'date' => $request->date,
+            'timestamp' => $request->time,
+            'timezone' => $request->timezone
+        ]);
     }
 
     /**
@@ -78,11 +70,14 @@ class BookingController extends Controller
             'notes' => $request->notes
         ]);
 
-        $htmlLink = BookingServices::calendarEvent($request->schedule_call, $request->timezone, $request->email);
-        Mail::to('paolo_catalan@yahoo.com')->send(new BookingSuccessMail($request->name, $request->schedule_call, $htmlLink));
+        // $meetingLink = BookingServices::calendarEvent($request->schedule_call, $request->timezone, $request->email);
+        // Mail::to('paolo_catalan@yahoo.com')->send(new BookingSuccessMail($request->name, $request->schedule_call, $meetingLink));
 
         return response()->noContent()
-                ->header('HX-Redirect', route('booking.success'));
+                ->header('HX-Redirect', route('booking.success', [
+                    'date' => $request->timestamp,
+                    'timezone' => $request->timezone
+                ]));
 
     }
 
@@ -118,8 +113,21 @@ class BookingController extends Controller
         //
     }
 
-    public function success()
+    public function success(Request $request)
     {
-        return view('sections.bookings.success');
+        if ( !$request->date || !$request->timezone ) {
+            abort(404);
+        }
+
+        return view('sections.bookings.success', [
+            'date' => $request->date,
+            'timezone' => $request->timezone
+        ]);
+    }
+
+    public function setTimezone(Request $request)
+    {
+        $timezoneCookie = Cookie::make('timezone', $request->timezone, 60);
+        return back()->withCookie($timezoneCookie);
     }
 }

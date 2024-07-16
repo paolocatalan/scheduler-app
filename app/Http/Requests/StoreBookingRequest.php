@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Booking;
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreBookingRequest extends FormRequest
@@ -22,17 +24,19 @@ class StoreBookingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'schedule_call' => 'bail|required|date|date_format:Y-m-d H:s:i|after:now',
+            'schedule_call' => 'required|date|date_format:Y-m-d H:s:i|after:now|unique:App\Models\Booking',
             'timezone' => 'required|timezone:all',
             'name' => 'required',
             'email' => 'required|email:strict',
-            'notes' => 'required',
+            'notes' => 'required'
         ];
     }
 
     public function messages()
     {
         return [
+            'schedule_call.unique' => 'Something really went wrong.',
+            'timezone.required' => 'Something really went wrong.',
             'name.required' => 'Name Required! Let\'s not be strangers!',
             'email.required' => 'We definitely need your email address!',
             'email.email' => 'Hmm, that doesn\'t look like a valid email.',

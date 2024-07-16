@@ -14,7 +14,8 @@ class ProjectController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('auth', except: ['index', 'show'])
+            new Middleware('auth', except: ['index', 'show']),
+            new Middleware('isAdmin', only: ['create', 'store'])
         ];
     }
 
@@ -37,8 +38,6 @@ class ProjectController extends Controller implements HasMiddleware
     public function store(StoreProjectRequest $request)
     {
         Gate::authorize('create', Project::class);
-
-        $request->validated();
 
         Project::create([
             'title' => $request->title,
@@ -84,7 +83,7 @@ class ProjectController extends Controller implements HasMiddleware
         $project->update($validated);
 
         // redirect
-        return redirect('/projects/' . $project->slug . '/edit' )->with('message', 'Your project has been updated.');
+        return redirect('/projects/' . $project->slug )->with('message', 'Your project has been updated.');
     }
 
     public function destroy(Project $project)

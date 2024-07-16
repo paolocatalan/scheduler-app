@@ -1,24 +1,20 @@
-<?php
-
-use App\Http\Helpers\Booker;
-?>
-@extends('layouts.app')
+@extends('layouts.blank')
 @section('content')
-<main>
+<section id="content-area">
     <div class="calendar" hx-boost="true">
         <div class="calendar-date-picker">
-            <?php Booker::buildCalendar($year, $month, $timezone_selected); ?>
-
+            <?php $calendar->buildCalendar(); ?>
+            
             <label for="timezone">Timezone:</label>
-            <select name="timezone" id="timezone" hx-get="/schedule-a-call/<?php echo '?year=' . $year . '&month=' . $month . '&date=' . Booker::dateChecker($date, $timezone_selected) . '&timezone=' . $timezone_selected; ?>" hx-push-url="/schedule-a-call/?date=<?php echo Booker::dateChecker($date, $timezone_selected); ?>" hx-trigger="change" hx-target="body">
-                @foreach (timezone_identifiers_list() as $timezone)
-                <option value="{{ $timezone }}" {{ $timezone == old('timezone') || $timezone == $timezone_selected ? ' selected' : '' }}>{{ $timezone }}</option>
+            <select name="timezone" id="timezone" hx-get="/schedule-a-call/?date={{ $date }}" hx-push-url="/schedule-a-call/?date={{ $date }}" hx-trigger="change" hx-target="#content-area" hx-select=".calendar">
+                @foreach (timezone_identifiers_list() as $tz )
+                <option value="{{ $tz }}" {{ $tz == old('timezone') || $tz == $timezone ? ' selected' : '' }}>{{ $tz }}</option>
                 @endforeach
             </select>
         </div>
         <div class="calendar-timeslots">
-            <?php Booker::buildTimeslot($date, $timezone_selected); ?>
+            <?php $calendar->buildTimeslot(); ?>
         </div>
     </div>
-</main>
+</section>
 @endsection

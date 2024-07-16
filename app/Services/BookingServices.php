@@ -19,15 +19,22 @@ class BookingServices
             // requires Google Workspace subscription
             // $event->addAttendee(['email' => $attendee]);
             // $event->addMeetLink();
+
             $calendarEvent = $event->save();
-            
             // $calendarEvent->hangoutLink;
             // $calendarEvent->id;
 
             return $calendarEvent->htmlLink;
-
-        } catch (\Throwable $e) {
-            report($e);
+        
+        } catch (\Google\Service\Exception $exception) {
+        
+            report('Something went wrong with Google Services');
+            report($exception);
+        
+        } catch (\Throwable $exception) {
+        
+            report($exception);
+            // dd(get_class($exception));
         }
     }
 
