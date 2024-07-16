@@ -52,7 +52,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Carbon::macro('inUserTimezone', function() {
-            return $this->tz( request()->cookie('timezone') ?? config('app.timezone_display'));
+            return $this->tz(request()->cookie('timezone') ?? config('app.timezone_display'));
         });
     }
 }

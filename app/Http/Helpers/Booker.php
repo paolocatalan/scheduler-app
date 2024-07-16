@@ -22,13 +22,13 @@ class Booker
         $this->date = $date;
         $this->timezone = $timezone;
         $this->dateTime = new CarbonImmutable($date, $timezone);
-        $this->currentDateTime = CarbonImmutable::now($timezone);
+        $this->currentDateTime = CarbonImmutable::now(config('app.timezone_display'));
         $this->bookedDates = array('2024-08-01 00:00:00', '2024-08-02 00:00:00', '2024-08-03 00:00:00');
     }
 
-    public static function dateChecker($date, $timezone) {
-        $dateTime = new CarbonImmutable($date, $timezone);
-        $currentDateTime = Carbon::now($timezone);
+    public static function dateChecker($date) {
+        $dateTime = new Carbon($date, config('app.timezone_display'));
+        $currentDateTime = Carbon::now(config('app.timezone_display'));
         //check for past days
         if ($currentDateTime > $dateTime) {
             $dateTime = $currentDateTime;
@@ -67,13 +67,13 @@ class Booker
         $currentDay = 1;
 
         $disablePastMonth = ($monthMumeric == $currentMonth) ? ' disabled="disabled"' : '';
-        $previousMonthLink = $this->dateChecker(date('Y-m-d', mktime(0, 0, 0, $this->month-1, 1, $this->year)), $this->timezone);
-        $nextMonthLink = $this->dateChecker(date('Y-m-d', mktime(0, 0, 0, $this->month+1, 1, $this->year)), $this->timezone);
+        $previousMonthLink = $this->dateChecker(date('Y-m-d', mktime(0, 0, 0, $this->month-1, 1, $this->year)));
+        $nextMonthLink = $this->dateChecker(date('Y-m-d', mktime(0, 0, 0, $this->month+1, 1, $this->year)));
 
         $calendar = '<div class="month-header"><h2>'. $monthName . ' '. $this->year . '</h2>';
         $calendar .= '<nav>';
-        $calendar .= '<button hx-get="/schedule-a-call/?year=' . date('Y', mktime(0, 0, 0, $this->month-1, 1, $this->year)) . '&month=' . date('m', mktime(0, 0, 0, $this->month-1, 1, $this->year)) . '&date=' . $previousMonthLink->format('Y-m-d') .'&timezone='. $this->timezone .'" hx-push-url="/schedule-a-call/?date=' . $previousMonthLink->format('Y-m-d') .'"'. $disablePastMonth .' hx-target="#content-area" hx-select=".calendar">&lsaquo;</button>';
-        $calendar .= '<button hx-get="/schedule-a-call/?year=' . date('Y', mktime(0, 0, 0, $this->month+1, 1, $this->year)) . '&month=' . date('m', mktime(0, 0, 0, $this->month+1, 1, $this->year)) . '&date=' . $nextMonthLink->format('Y-m-d') .'&timezone='. $this->timezone .'" hx-push-url="/schedule-a-call/?date=' . $nextMonthLink->format('Y-m-d') . '" hx-target="#content-area" hx-select=".calendar">&rsaquo;</button>';
+        $calendar .= '<button hx-get="/schedule-a-call/?year=' . date('Y', mktime(0, 0, 0, $this->month-1, 1, $this->year)) . '&month=' . date('m', mktime(0, 0, 0, $this->month-1, 1, $this->year)) . '&date=' . $previousMonthLink->format('Y-m-d') .'" hx-push-url="/schedule-a-call/?date=' . $previousMonthLink->format('Y-m-d') .'"'. $disablePastMonth .' hx-target="#content-area" hx-select=".calendar">&lsaquo;</button>';
+        $calendar .= '<button hx-get="/schedule-a-call/?year=' . date('Y', mktime(0, 0, 0, $this->month+1, 1, $this->year)) . '&month=' . date('m', mktime(0, 0, 0, $this->month+1, 1, $this->year)) . '&date=' . $nextMonthLink->format('Y-m-d') .'" hx-push-url="/schedule-a-call/?date=' . $nextMonthLink->format('Y-m-d') . '" hx-target="#content-area" hx-select=".calendar">&rsaquo;</button>';
         $calendar .= '</nav></div>';
 
         $calendar .= '<table><tr>';
@@ -94,7 +94,7 @@ class Booker
                 $calendar .= '</tr><tr>';
             }
 
-            $date = Carbon::createFromDate($this->year, $this->month, $currentDay, date_default_timezone_get());
+            $date = Carbon::createFromDate($this->year, $this->month, $currentDay, config('app.timezone_display'));
 
             $dateRequest = (isset($_GET['date'])) ? $_GET['date'] : $currentDate;
             $activeLink = ($dateRequest == $date->format('Y-m-d')) ? ' class="active"' : '';
@@ -105,7 +105,7 @@ class Booker
             } elseif (in_array($date->format('Y-m-d'), $this->bookedDates)) {
                 $calendar .= '<td class="not-available"><span>'. $currentDay .'</span>';
             } else {
-                $calendar .= '<td'. $activeLink .'><div hx-get="/schedule-a-call/?year=' . $this->year . '&month=' . $this->month . '&date=' . $date->format('Y-m-d') .'&timezone='. $this->timezone .'" hx-push-url="/schedule-a-call/?date='. $date->format('Y-m-d') .'"  hx-target="#content-area" hx-select=".calendar"><span'. $todayIndicator .'>' . $currentDay .'</span></div>';
+                $calendar .= '<td'. $activeLink .'><div hx-get="/schedule-a-call/?year=' . $this->year . '&month=' . $this->month . '&date=' . $date->format('Y-m-d') .'" hx-push-url="/schedule-a-call/?date='. $date->format('Y-m-d') .'"  hx-target="#content-area" hx-select=".calendar"><span'. $todayIndicator .'>' . $currentDay .'</span></div>';
             }
 
             $calendar .= '</td>';
@@ -143,12 +143,12 @@ class Booker
   }
 
   public function buildTimeslot() {
-    $bookedTimeslots = $this->bookedTimeslots($this->date, $this->timezone);
+    $bookedTimeslots = $this->bookedTimeslots();
     $openTime = $this->dateTime->format('Y-m-d') . ' 9:00:00';
     $closeTime = $this->dateTime->format('Y-m-d') . ' 17:00:00';
 
-    $openTime = $this->timezoneConverter($openTime, $this->timezone, date_default_timezone_get());
-    $closeTime = $this->timezoneConverter($closeTime, $this->timezone, date_default_timezone_get());
+    $openTime = $this->timezoneConverter($openTime, $this->timezone, config('app.timezone_display'));
+    $closeTime = $this->timezoneConverter($closeTime, $this->timezone, config('app.timezone_display'));
 
     $timeslots = array();
     for ($t = $openTime->timestamp; $t < $closeTime->timestamp; $t+=1800) {
@@ -165,7 +165,7 @@ class Booker
             $output .= '<li>'. date('g:i a', strtotime($timeslot)) .'</li>';
         } else {
             $dateTimeAvailable = new Carbon($this->dateTime->format('Y-m-d') . ' ' . $timeslot, $this->timezone);
-            $output .= '<li><span hx-get="/schedule-a-call/introduction?date='. $this->dateTime->format('Y-m-d') .'&time='. $dateTimeAvailable->timestamp .'&timezone='. $this->timezone .'" hx-push-url="/schedule-a-call/introduction?date='. $this->dateTime->format('Y-m-d') .'&time='. $dateTimeAvailable->timestamp .'&timezone='. $this->timezone .'" hx-target="#content-area">'. date('g:i a', strtotime($timeslot)) .'</span></li>';
+            $output .= '<li><span hx-get="/schedule-a-call/introduction?date='. $this->dateTime->format('Y-m-d') .'&time='. $dateTimeAvailable->timestamp .'" hx-push-url="/schedule-a-call/introduction?date='. $this->dateTime->format('Y-m-d') .'&time='. $dateTimeAvailable->timestamp .'" hx-target="#content-area">'. date('g:i a', strtotime($timeslot)) .'</span></li>';
         }
     }
     $output .= '</ul>';

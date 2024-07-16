@@ -6,7 +6,9 @@ use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\BookingController;
+use App\Http\Helpers\Booker;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Support\Facades\Cookie;
 
 Route::get('/', function() {
     return view('sections.static.home');
@@ -55,12 +57,26 @@ Route::post('/set-timezone', function(Request $request) {
 
 Route::get('/test', function(Request $request) {
     
-    $dateTime = now()->inUserTimezone();
-    $timezone = $dateTime->tzName;
-    return view('test', [
-        'dateTime' => $dateTime,
-        'timezone' => $timezone
-    ]);
+    // dd(Carbon\Carbon::now()->inUserTimezone()->format('Y-m-d'));
+
+    $dateChecked = Booker::dateChecker('2023-08-01');
+    dd($dateChecked);
+
+    // $date = new Carbon\CarbonImmutable('2024-07-17');
+    // $now = Carbon\CarbonImmutable::now();
+
+    // $dateTime = new Carbon\Carbon($date, config('app.timezone_display'));
+
+    // $timezoneCookie = Cookie::get('timezone');
+
+    // $dateTime = $now->inUserTimezone();
+    // $timezone = $dateTime->tzName;
+    // return view('test', [
+    //     'dateTime' => $dateTime,
+    //     'timezone' => $timezone,
+    //     'date' => $date->inUserTimezone(),
+    //     'timezoneCookie' => $timezoneCookie
+    // ]);
 
 
 

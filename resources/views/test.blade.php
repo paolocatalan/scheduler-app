@@ -1,11 +1,13 @@
 @extends('layouts.blank')
 @section('content')
 
-<?php echo $dateTime; ?>
+<?php echo $dateTime->addHours(3); ?>
 <br>
 <?php echo $dateTime->tzName; ?>
+<br>
+<?php echo $date->tzName; ?>
 
-<form method="post" action="{{ route('projects.store') }}" hx-post="{{ route('booking.timezone') }}" hx-trigger="change" hx-target="body">
+<form method="post" action="{{ route('booking.timezone') }}" hx-post="{{ route('booking.timezone') }}" hx-trigger="change" hx-target="body">
   @csrf
   <label for="timezone">Timezone:</label>
   <select name="timezone" id="timezone">

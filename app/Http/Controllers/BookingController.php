@@ -19,14 +19,14 @@ class BookingController extends Controller
      */
     public function index(Request $request)
     {
-        $timezone = (isset($_GET['timezone'])) ? $_GET['timezone'] : 'Asia/Manila'; // get the clients timezone
-        $dateSelected = ($request->date) ? new Carbon($request->date, $timezone) : Carbon::now($timezone);
-        $dateChecked = Booker::dateChecker($dateSelected, $timezone);
+        $timezone = (Cookie::has('timezone')) ? Cookie::get('timezone') : 'Asia/Manila'; // get the clients timezone
+
+        $dateSelected = ($request->date) ? new Carbon($request->date, $timezone) : Carbon::now()->inUserTimezone();
+        $dateChecked = Booker::dateChecker($dateSelected->format('Y-m-d'));
         $calendar = new Booker($dateChecked->format('Y'), $dateChecked->format('m'), $dateChecked->format('Y-m-d'), $timezone);
-
-
+        
         if (!$request->date || $dateSelected->format('Y-m-d') != $dateChecked->format('Y-m-d')) {
-            return redirect( request()->url() . '/?date=' . $dateChecked->format('Y-m-d') )->with('timezone', $timezone);
+            return redirect( request()->url() . '/?date=' . $dateChecked->format('Y-m-d') );
         }
 
         return view('sections.bookings.index', [
