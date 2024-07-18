@@ -8,10 +8,11 @@
                 @csrf
                 <label for="timezone">Timezone:</label>
                 <select name="timezone" id="timezone">
-                    @foreach (timezone_identifiers_list() as $tz )
-                    <option value="{{ $tz }}" {{ $tz == old('timezone') || $tz == $timezone ? ' selected' : '' }}>{{ $tz }}</option>
+                    @foreach (timezone_identifiers_list() as $timezoneName )
+                    <option value="{{ $timezoneName }}" {{ $timezoneName == old('timezone') || $timezoneName == $timezone ? ' selected' : '' }}>{{ $timezoneName }}</option>
                     @endforeach
                 </select>
+            </form>
         </div>
         <div class="calendar-timeslots">
             <?php $calendar->buildTimeslot(); ?>

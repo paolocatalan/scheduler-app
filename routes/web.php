@@ -6,9 +6,7 @@ use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\BookingController;
-use App\Http\Helpers\Booker;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use Illuminate\Support\Facades\Cookie;
 
 Route::get('/', function() {
     return view('sections.static.home');
@@ -48,37 +46,22 @@ Route::post('/email/verification-notification', function(Request $request) {
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
 
+Route::get('/sandbox', function() {
 
+    $date = '2024-08-15';
 
-Route::post('/set-timezone', function(Request $request) {
-    $timezoneCookie = Illuminate\Support\Facades\Cookie::make('timezone', $request->timezone, 60);
-    return back()->withCookie($timezoneCookie);
-});
+    $dateTime = new \Carbon\Carbon($date, config('app.timezone_display'));
 
-Route::get('/test', function(Request $request) {
-    
-    // dd(Carbon\Carbon::now()->inUserTimezone()->format('Y-m-d'));
+    $bookedDates = [
+        '2024-08-01', '2024-08-02', '2024-08-03', '2024-08-05', '2024-08-06', '2024-08-07', '2024-08-08', '2024-08-09', '2024-08-10'
+    ];
 
-    $dateChecked = Booker::dateChecker('2023-08-01');
-    dd($dateChecked);
+    // Function to check if the date is available and not a day off
+    $isUnavailableOrDayOff = function ($dateTime) use ($bookedDates) {
+        return in_array($dateTime->format('Y-m-d'), $bookedDates) || $dateTime->dayOfWeek == Carbon\Carbon::SUNDAY;
+    };
 
-    // $date = new Carbon\CarbonImmutable('2024-07-17');
-    // $now = Carbon\CarbonImmutable::now();
-
-    // $dateTime = new Carbon\Carbon($date, config('app.timezone_display'));
-
-    // $timezoneCookie = Cookie::get('timezone');
-
-    // $dateTime = $now->inUserTimezone();
-    // $timezone = $dateTime->tzName;
-    // return view('test', [
-    //     'dateTime' => $dateTime,
-    //     'timezone' => $timezone,
-    //     'date' => $date->inUserTimezone(),
-    //     'timezoneCookie' => $timezoneCookie
-    // ]);
-
-
+    dd($isUnavailableOrDayOff($dateTime));
 
     // $startDateTime = '2024-12-18 11:00:00';
     // $timezone = 'Europe/Warsaw';

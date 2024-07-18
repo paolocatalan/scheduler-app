@@ -23,7 +23,9 @@ class Booker
         $this->timezone = $timezone;
         $this->dateTime = new CarbonImmutable($date, $timezone);
         $this->currentDateTime = CarbonImmutable::now(config('app.timezone_display'));
-        $this->bookedDates = array('2024-08-01 00:00:00', '2024-08-02 00:00:00', '2024-08-03 00:00:00');
+        $this->bookedDates = [
+            '2024-08-01', '2024-08-02', '2024-08-03', '2024-08-05', '2024-08-06', '2024-08-07', '2024-08-08', '2024-08-09', '2024-08-10'
+        ];
     }
 
     public static function dateChecker($date) {
@@ -34,17 +36,20 @@ class Booker
             $dateTime = $currentDateTime;
         }
 
-        // check for days off
-        if ($dateTime->dayOfWeek === Carbon::SUNDAY ) {
-            $dateTime = $dateTime->addDay();
+        $bookedDates = [
+            '2024-08-01', '2024-08-02', '2024-08-03', '2024-08-05', '2024-08-06', '2024-08-07', '2024-08-08', '2024-08-09', '2024-08-10'
+        ];
+    
+        // Function to check if the date is available and not a day off
+        $isUnavailableOrDayOff = function ($dateTime) use ($bookedDates) {
+            return in_array($dateTime->format('Y-m-d'), $bookedDates) || $dateTime->dayOfWeek == Carbon::SUNDAY;
+        };
+    
+        // Iterate until an available date is found
+        while ($isUnavailableOrDayOff($dateTime)) {
+            $dateTime->addDay();
         }
-
-        // // check for unavailable dates
-        // $bookedDates = array('2024-08-01', '2024-08-02', '2024-08-03');
-        // while (in_array($dateTime->format('Y-m-d'), $bookedDates)) {
-        //     $dateTime = $dateTime->addDay();
-        // }
-
+        
         return $dateTime;
     }
 
@@ -165,7 +170,7 @@ class Booker
             $output .= '<li>'. date('g:i a', strtotime($timeslot)) .'</li>';
         } else {
             $dateTimeAvailable = new Carbon($this->dateTime->format('Y-m-d') . ' ' . $timeslot, $this->timezone);
-            $output .= '<li><span hx-get="/schedule-a-call/introduction?date='. $this->dateTime->format('Y-m-d') .'&time='. $dateTimeAvailable->timestamp .'" hx-push-url="/schedule-a-call/introduction?date='. $this->dateTime->format('Y-m-d') .'&time='. $dateTimeAvailable->timestamp .'" hx-target="#content-area">'. date('g:i a', strtotime($timeslot)) .'</span></li>';
+            $output .= '<li><span hx-get="/schedule-a-call/introduction?date='. $this->dateTime->format('Y-m-d') .'&time='. $dateTimeAvailable->timestamp .'&timezone='. $this->timezone .'" hx-push-url="true" hx-target="#content-area" hx-select=".bookers-details">'. date('g:i a', strtotime($timeslot)) .'</span></li>';
         }
     }
     $output .= '</ul>';

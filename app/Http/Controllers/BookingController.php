@@ -19,14 +19,15 @@ class BookingController extends Controller
      */
     public function index(Request $request)
     {
-        $timezone = (Cookie::has('timezone')) ? Cookie::get('timezone') : 'Asia/Manila'; // get the clients timezone
-
-        $dateSelected = ($request->date) ? new Carbon($request->date, $timezone) : Carbon::now()->inUserTimezone();
+        $dateSelected = ($request->date) ? new Carbon($request->date) : Carbon::now();
         $dateChecked = Booker::dateChecker($dateSelected->format('Y-m-d'));
+        $timezone = (Cookie::has('timezone')) ? Cookie::get('timezone') : 'Europe/Kyiv'; // get the clients timezone via cloudflare server variable
         $calendar = new Booker($dateChecked->format('Y'), $dateChecked->format('m'), $dateChecked->format('Y-m-d'), $timezone);
         
-        if (!$request->date || $dateSelected->format('Y-m-d') != $dateChecked->format('Y-m-d')) {
-            return redirect( request()->url() . '/?date=' . $dateChecked->format('Y-m-d') );
+        if (!$request->header('HX-Request')) {
+            if (!$request->date || $dateSelected->format('Y-m-d') != $dateChecked->format('Y-m-d')) {
+                return redirect( request()->url() . '/?date=' . $dateChecked->format('Y-m-d') );
+            }
         }
 
         return view('sections.bookings.index', [
@@ -43,12 +44,13 @@ class BookingController extends Controller
      */
     public function create(Request $request)
     {
-        // add if the page is refreshed
-        // $is_page_refreshed = (isset($_SERVER['HTTP_CACHE_CONTROL']) && $_SERVER['HTTP_CACHE_CONTROL'] == 'max-age=0');
-
         // if (!$request->header('HX-Request')) {
         //     return redirect('/schedule-a-call/?date' . date('Y-m-d'));
         // }
+
+        if (!$request->date || !$request->time || !$request->timezone) {
+            return redirect('/schedule-a-call/?date' . date('Y-m-d'));
+        }
 
         return view('sections.bookings.create', [
             'date' => $request->date,
@@ -70,8 +72,8 @@ class BookingController extends Controller
             'notes' => $request->notes
         ]);
 
-        // $meetingLink = BookingServices::calendarEvent($request->schedule_call, $request->timezone, $request->email);
-        // Mail::to('paolo_catalan@yahoo.com')->send(new BookingSuccessMail($request->name, $request->schedule_call, $meetingLink));
+        $meetingLink = BookingServices::calendarEvent($request->schedule_call, $request->timezone, $request->email);
+        Mail::to('paolo_catalan@yahoo.com')->send(new BookingSuccessMail($request->name, $request->schedule_call, $meetingLink));
 
         return response()->noContent()
                 ->header('HX-Redirect', route('booking.success', [
@@ -127,7 +129,7 @@ class BookingController extends Controller
 
     public function setTimezone(Request $request)
     {
-        $timezoneCookie = Cookie::make('timezone', $request->timezone, 60);
+        $timezoneCookie = Cookie::forever('timezone', $request->timezone); // one year
         return back()->withCookie($timezoneCookie);
     }
 }
