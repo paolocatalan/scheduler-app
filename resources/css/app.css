@@ -137,7 +137,7 @@ pre.home-console {
   padding: 0;
 }
 
-.calendar-date-picker td > div {
+.calendar-date-picker td > a {
   display:block;
   width:100%;
   cursor: pointer;
@@ -159,13 +159,13 @@ pre.home-console {
   background:#e9e9ed;
 }
 
-.calendar-timeslots ul > li > span {
+.calendar-timeslots ul > li > a {
   color: #0060df;
   text-decoration: underline;
   cursor: pointer;
 }
 
-.calendar-timeslots ul > li > span:hover {
+.calendar-timeslots ul > li > a:hover {
   text-decoration: none;
 }
 

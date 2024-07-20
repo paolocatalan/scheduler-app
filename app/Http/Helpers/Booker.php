@@ -53,6 +53,7 @@ class Booker
     }
 
     public function buildCalendar() {
+        $bookedDates = self::bookedDates();
         $currentDate = $this->currentDateTime->format('Y-m-d');
         $currentMonth = $this->currentDateTime->month;
 
@@ -94,19 +95,16 @@ class Booker
             }
 
             $date = Carbon::createFromDate($this->year, $this->month, $currentDay, config('app.timezone_display'));
-
             $dateRequest = (isset($_GET['date'])) ? $_GET['date'] : $currentDate;
             $activeLink = ($dateRequest == $date->format('Y-m-d')) ? ' class="active"' : '';
             $todayIndicator = ($currentDate == $date->format('Y-m-d')) ? ' class="today"' : '';
-
-            $bookedDates = self::bookedDates();
 
             if ($date < $this->currentDateTime || $date->format('D') == 'Sun') {
                 $calendar .= '<td class="not-available"><span>'. $currentDay .'</span>';
             } elseif (in_array($date->format('Y-m-d'), $bookedDates)) {
                 $calendar .= '<td class="not-available"><span>'. $currentDay .'</span>';
             } else {
-                $calendar .= '<td'. $activeLink .'><div hx-get="/schedule-a-call/?date=' . $date->format('Y-m-d') .'" hx-push-url="true"  hx-target="#content-area" hx-select=".calendar"><span'. $todayIndicator .'>' . $currentDay .'</span></div>';
+                $calendar .= '<td'. $activeLink .'><a hx-get="/schedule-a-call/?date=' . $date->format('Y-m-d') .'" hx-push-url="true"  hx-target="#content-area" hx-select=".calendar"><span'. $todayIndicator .'>' . $currentDay .'</span></a>';
             }
 
             $calendar .= '</td>';
@@ -127,7 +125,8 @@ class Booker
         echo $calendar;
   }
 
-  private function bookedTimeslots() {
+  private function bookedTimeslots()
+  {
     $bookings = Booking::where('schedule_call', '>', $this->currentDateTime)->get();
     $bookedTimeslots = array();
     foreach ($bookings as $booking) {
@@ -143,13 +142,10 @@ class Booker
     return $bookedTimeslots;
   }
 
-  public function buildTimeslot() {
-    $bookedTimeslots = $this->bookedTimeslots();
-    $openTime = $this->dateTime->format('Y-m-d') . ' 9:00:00';
-    $closeTime = $this->dateTime->format('Y-m-d') . ' 17:00:00';
-
-    $openTime = self::timezoneConverter($openTime, $this->timezone, config('app.timezone_display'));
-    $closeTime = self::timezoneConverter($closeTime, $this->timezone, config('app.timezone_display'));
+  private function timeslots()
+  {
+    $openTime = self::timezoneConverter($this->dateTime->format('Y-m-d') . ' 9:00:00', $this->timezone, config('app.timezone_display'));
+    $closeTime = self::timezoneConverter($this->dateTime->format('Y-m-d') . ' 17:00:00', $this->timezone, config('app.timezone_display'));
 
     $timeslots = array();
     for ($t = $openTime->timestamp; $t < $closeTime->timestamp; $t+=1800) {
@@ -159,19 +155,26 @@ class Booker
         $timeslots[] = Carbon::createFromTimestamp($t, $this->timezone)->format('H:i:s');
     }
 
+    return $timeslots;
+  }
+
+  public function buildTimeslot()
+  {
+    $bookedTimeslots = $this->bookedTimeslots();
     $output = '<p><strong>'. $this->dateTime->format('D') .'</strong> '. $this->dateTime->format('j') .'</p>';
     $output .= '<ul>';
-    foreach ($timeslots as $timeslot) {
+    foreach ($this->timeslots() as $timeslot) {
         if (!empty($bookedTimeslots) && in_array($timeslot, $bookedTimeslots)) {
             $output .= '<li>'. date('g:i a', strtotime($timeslot)) .'</li>';
         } else {
             $dateTimeAvailable = new Carbon($this->dateTime->format('Y-m-d') . ' ' . $timeslot, $this->timezone);
-            $output .= '<li><span hx-get="/schedule-a-call/introduction?date='. $this->dateTime->format('Y-m-d') .'&time='. $dateTimeAvailable->timestamp .'&timezone='. $this->timezone .'" hx-push-url="true" hx-target="#content-area" hx-select=".bookers-details">'. date('g:i a', strtotime($timeslot)) .'</span></li>';
+            $output .= '<li><a hx-get="/schedule-a-call/introduction?date='. $this->dateTime->format('Y-m-d') .'&time='. $dateTimeAvailable->timestamp .'&timezone='. $this->timezone .'" hx-push-url="true" hx-target="#content-area" hx-select=".bookers-details">'. date('g:i a', strtotime($timeslot)) .'</a></li>';
         }
     }
     $output .= '</ul>';
-    if ($this->dateTime->isToday() && $this->currentDateTime->timestamp > $closeTime->timestamp) {
-        $output .= 'Please consider rescheduling for tomorrow.';
+
+    if ($this->dateTime->isToday() && empty($this->timeslots())) {
+        $output .= '<p>Please consider rescheduling for tomorrow.</p>';
     }
 
     echo $output;

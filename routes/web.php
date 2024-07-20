@@ -6,6 +6,7 @@ use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\BookingController;
+use App\Http\Helpers\Booker;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 Route::get('/', function() {
@@ -46,7 +47,26 @@ Route::post('/email/verification-notification', function(Request $request) {
 
 Route::get('/sandbox', function() {
 
-    dd(timezone_identifiers_list()[array_rand(timezone_identifiers_list())]);
+    function randomDate() {
+        $randomTimestamp = rand(1721395626, 1752931626);
+        $dateTime = Booker::dateChecker(date('Y-m-d', $randomTimestamp));
+        $randomTimezone = timezone_identifiers_list()[array_rand(timezone_identifiers_list())];
+        $dateTime->setTimezone($randomTimezone);
+        return $dateTime;
+    }
+
+    $dateTime = randomDate();
+
+    $calendar = new Booker($dateTime->format('Y'), $dateTime->format('m'), $dateTime->format('Y-m-d'), $dateTime->tzName);
+    
+    
+    // set accessible for private method
+    $reflector = new ReflectionClass($calendar);
+
+    $function  = $reflector->getMethod('timeslots');
+
+
+    dd($function);
 
     // $startDateTime = '2024-12-18 11:00:00';
     // $timezone = 'Europe/Warsaw';

@@ -9,7 +9,9 @@ use Carbon\Carbon;
 class CalendarTest extends TestCase
 {
     public function test_date_checker_available_dates() {
-        $dateChecked = Booker::dateChecker('2024-08-01');
+        $randomTimestamp = rand(1721395626, 1752931626);
+        $dateTime = date('Y-m-d', $randomTimestamp);
+        $dateChecked = Booker::dateChecker($dateTime);
         $bookedDates = Booker::bookedDates();
         $this->assertFalse($dateChecked->isPast());
         $this->assertFalse($dateChecked->dayOfWeek === Carbon::SUNDAY);
