@@ -44,10 +44,6 @@ class BookingController extends Controller
      */
     public function create(Request $request)
     {
-        // if (!$request->header('HX-Request')) {
-        //     return redirect('/schedule-a-call/?date' . date('Y-m-d'));
-        // }
-
         if (!$request->date || !$request->time || !$request->timezone) {
             return redirect('/schedule-a-call/?date' . date('Y-m-d'));
         }

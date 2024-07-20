@@ -12,13 +12,11 @@
 </head>
 <body>
   @include('layouts.navigation')
-  <main class="site-content">
-    @if (session()->has('message'))
-      <div>
-        <p>{{ session()->get('message') }}</p>
-      </div>
-    @endif
-    @yield('content')
-  </main>
+  @if (session()->has('message'))
+    <div>
+      <p>{{ session()->get('message') }}</p>
+    </div>
+  @endif
+  @yield('content')
 </body>
 </html>
