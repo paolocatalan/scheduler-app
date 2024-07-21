@@ -34,12 +34,10 @@ class Booker
 
         $bookedDates = self::bookedDates();
 
-        // Function to check if the date is available and not a day off
         $isUnavailableOrDayOff = function ($dateTime) use ($bookedDates) {
             return in_array($dateTime->format('Y-m-d'), $bookedDates) || $dateTime->dayOfWeek == Carbon::SUNDAY;
         };
-    
-        // Iterate until an available date is found
+
         while ($isUnavailableOrDayOff($dateTime)) {
             $dateTime->addDay();
         }
@@ -54,23 +52,18 @@ class Booker
 
     public function buildCalendar() {
         $bookedDates = self::bookedDates();
-        $currentDate = $this->currentDateTime->format('Y-m-d');
-        $currentMonth = $this->currentDateTime->month;
 
         $daysOfWeek = array('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
         $firstDayOfMonth = mktime(0, 0, 0, $this->month, 1, $this->year);
-        $numberDays = date('t', $firstDayOfMonth);
         $dateComponents = getdate($firstDayOfMonth);
-        $monthName = $dateComponents['month'];
         $dayOfWeek = $dateComponents['wday'];
-        $monthMumeric = $dateComponents['mon'];
         $currentDay = 1;
 
-        $disablePastMonth = ($monthMumeric == $currentMonth) ? ' disabled="disabled"' : '';
+        $disablePastMonth = ($this->dateTime->month == $this->currentDateTime->month) ? ' disabled="disabled"' : '';
         $previousMonthLink = self::dateChecker(date('Y-m-d', mktime(0, 0, 0, $this->month-1, 1, $this->year)));
         $nextMonthLink = self::dateChecker(date('Y-m-d', mktime(0, 0, 0, $this->month+1, 1, $this->year)));
-
-        $calendar = '<div class="month-header"><h2>'. $monthName . ' '. $this->year . '</h2>';
+    
+        $calendar = '<div class="month-header"><h2>'. $this->dateTime->monthName . ' '. $this->dateTime->year . '</h2>';
         $calendar .= '<nav>';
         $calendar .= '<button hx-get="/schedule-a-call/?date=' . $previousMonthLink->format('Y-m-d') .'" hx-push-url="true"'. $disablePastMonth .' hx-target="#content-area" hx-select=".calendar">&lsaquo;</button>';
         $calendar .= '<button hx-get="/schedule-a-call/?date=' . $nextMonthLink->format('Y-m-d') .'" hx-push-url="true" hx-target="#content-area" hx-select=".calendar">&rsaquo;</button>';
@@ -88,16 +81,16 @@ class Booker
             }
         }
 
-        while ($currentDay <= $numberDays) {
+        while ($currentDay <= $this->dateTime->daysInMonth) {
             if ($dayOfWeek == 7) {
                 $dayOfWeek = 0;
                 $calendar .= '</tr><tr>';
             }
 
             $date = Carbon::createFromDate($this->year, $this->month, $currentDay, config('app.timezone_display'));
-            $dateRequest = (isset($_GET['date'])) ? $_GET['date'] : $currentDate;
+            $dateRequest = (isset($_GET['date'])) ? $_GET['date'] : '';
             $activeLink = ($dateRequest == $date->format('Y-m-d')) ? ' class="active"' : '';
-            $todayIndicator = ($currentDate == $date->format('Y-m-d')) ? ' class="today"' : '';
+            $todayIndicator = ($this->currentDateTime->format('Y-m-d') == $date->format('Y-m-d')) ? ' class="today"' : '';
 
             if ($date < $this->currentDateTime || $date->format('D') == 'Sun') {
                 $calendar .= '<td class="not-available"><span>'. $currentDay .'</span>';
@@ -142,7 +135,7 @@ class Booker
     return $bookedTimeslots;
   }
 
-  private function timeslots()
+  public function timeslots()
   {
     $openTime = self::timezoneConverter($this->dateTime->format('Y-m-d') . ' 9:00:00', $this->timezone, config('app.timezone_display'));
     $closeTime = self::timezoneConverter($this->dateTime->format('Y-m-d') . ' 17:00:00', $this->timezone, config('app.timezone_display'));

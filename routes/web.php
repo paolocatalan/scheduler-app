@@ -57,16 +57,15 @@ Route::get('/sandbox', function() {
 
     $dateTime = randomDate();
 
-    $calendar = new Booker($dateTime->format('Y'), $dateTime->format('m'), $dateTime->format('Y-m-d'), $dateTime->tzName);
+    $calendar = new Booker('2024', '08', '2024-08-20', 'Europe/Kyiv');
     
     
-    // set accessible for private method
-    $reflector = new ReflectionClass($calendar);
+    // // set accessible for private method
+    // $reflector = new ReflectionClass($calendar);
 
-    $function  = $reflector->getMethod('timeslots');
+    // $function  = $reflector->getMethod('timeslots');
 
-
-    dd($function);
+    dd($calendar->date);
 
     // $startDateTime = '2024-12-18 11:00:00';
     // $timezone = 'Europe/Warsaw';
