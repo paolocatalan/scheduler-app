@@ -35,8 +35,9 @@ class StoreBookingRequest extends FormRequest
     public function messages()
     {
         return [
-            'schedule_call.unique' => 'Something really went wrong.',
-            'timezone.required' => 'Something really went wrong.',
+            'schedule_call.required' => 'Something went wrong. Please go back and select a date again.',
+            'schedule_call.unique' => 'Something went wrong. Please go back and select a date again.',
+            'timezone.required' => 'Something really went wrong. Please go back and select a timezone again.',
             'name.required' => 'Name Required! Let\'s not be strangers!',
             'email.required' => 'We definitely need your email address!',
             'email.email' => 'Hmm, that doesn\'t look like a valid email.',

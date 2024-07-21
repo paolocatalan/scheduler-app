@@ -2,28 +2,31 @@
 
 namespace Tests\Unit;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Http\Helpers\Booker;
 use Carbon\Carbon;
 
 class CalendarTest extends TestCase
 {
-    public function test_date_checker_for_past_days()
+    use RefreshDatabase;
+
+    public function test_it_checks_for_past_days()
     {
-        $dateChecked = Booker::dateChecker('2023-08-18');
-        $this->assertFalse($dateChecked->isPast());
+        $dateChecked = Booker::dateChecker('2023-08-18'); //past date
+        $this->assertTrue($dateChecked->isToday());
     }
 
-    public function test_date_checker_for_daysoff(): void
+    public function test_it_checks_for_daysoff(): void
     {
         $dateChecked = Booker::dateChecker('2024-08-18'); // Sunday
         $this->assertFalse($dateChecked->dayOfWeek === Carbon::SUNDAY);
     }
 
-    public function test_date_checker_for_booked_dates():void
+    public function test_it_checks_for_booked_dates():void
     {
         $bookedDates = Booker::bookedDates();
-        $dateChecked = Booker::dateChecker('2024-08-18');
+        $dateChecked = Booker::dateChecker($bookedDates[array_rand($bookedDates)]);
         $this->assertFalse(in_array($dateChecked, $bookedDates));
     }
 

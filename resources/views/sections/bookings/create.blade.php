@@ -17,6 +17,12 @@
                     <input type="hidden" id="schedule_call" name="schedule_call" value="<?php echo date('Y-m-d H:i:s', $timestamp); ?>">
                     <input type="hidden" id="timestamp" name="timestamp" value="{{ $timestamp }}">
                     <input type="hidden" id="timezone" name="timezone" value="{{ $timezone }}">
+                    @error('schedule_call')
+                        <span style="color:#d32f2f;">{{ $message }}</span>
+                    @enderror
+                    @error('timezone')
+                        <span style="color:#d32f2f;">{{ $message }}</span>
+                    @enderror
                     <label for="name">Your name</label>
                     <input type="text" id="name" name="name" value="{{ old('name') }}">
                     @error('name')

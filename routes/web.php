@@ -65,7 +65,8 @@ Route::get('/sandbox', function() {
 
     // $function  = $reflector->getMethod('timeslots');
 
-    dd($calendar->date);
+    $bookedDates = Booker::bookedDates();
+    dd($bookedDates[array_rand($bookedDates)]);
 
     // $startDateTime = '2024-12-18 11:00:00';
     // $timezone = 'Europe/Warsaw';
