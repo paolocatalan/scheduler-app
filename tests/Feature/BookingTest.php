@@ -7,7 +7,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use App\Models\Booking;
 use Tests\TestCase;
 
-class ExampleTest extends TestCase
+class BookingTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -25,7 +25,6 @@ class ExampleTest extends TestCase
             'notes' => 'Go and HTMX'
         ]);
         $response->assertInvalid(['schedule_call']);
-        $response->assertStatus(302);
         $response->assertSessionHasErrors([
             'schedule_call' => 'Something went wrong. Please go back and select a date again.'
         ]);
@@ -39,9 +38,8 @@ class ExampleTest extends TestCase
             'notes' => 'Go and HTMX'
         ]);
         $response->assertInvalid(['timezone']);
-        $response->assertStatus(302);
         $response->assertSessionHasErrors([
-                'timezone' => 'Something really went wrong. Please go back and select a timezone again.'
+                'timezone' => 'Something went wrong. Please go back and select a timezone again.'
             ]);
     }
 

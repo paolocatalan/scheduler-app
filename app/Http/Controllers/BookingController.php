@@ -14,9 +14,7 @@ use Illuminate\Support\Facades\Cookie;
 
 class BookingController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index(Request $request)
     {
         $dateSelected = ($request->date) ? new Carbon($request->date) : Carbon::now();
@@ -39,9 +37,6 @@ class BookingController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(Request $request)
     {
         if (!$request->date || !$request->time || !$request->timezone) {
@@ -55,9 +50,6 @@ class BookingController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreBookingRequest $request)
     {
         Booking::create([
@@ -68,47 +60,15 @@ class BookingController extends Controller
             'notes' => $request->notes
         ]);
 
-        $meetingLink = BookingServices::calendarEvent($request->schedule_call, $request->timezone, $request->email);
-        Mail::to('paolo_catalan@yahoo.com')->send(new BookingSuccessMail($request->name, $request->schedule_call, $meetingLink));
+        // $meetingLink = BookingServices::calendarEvent($request->schedule_call, $request->timezone, $request->email);
+        // Mail::to('paolo_catalan@yahoo.com')->send(new BookingSuccessMail($request->name, $request->schedule_call, $meetingLink));
 
         return response()->noContent()
                 ->header('HX-Redirect', route('booking.success', [
                     'date' => $request->timestamp,
-                    'timezone' => $request->timezone
+                    'timezone' => $request->timezone,
                 ]));
 
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 
     public function success(Request $request)
@@ -128,4 +88,5 @@ class BookingController extends Controller
         $timezoneCookie = Cookie::forever('timezone', $request->timezone); // one year
         return back()->withCookie($timezoneCookie);
     }
+
 }

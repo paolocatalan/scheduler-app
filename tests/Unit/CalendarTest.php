@@ -39,7 +39,7 @@ class CalendarTest extends TestCase
             'email' => 'dhh@rails.com',
             'notes' => 'Ruby on Rails'
         ]);
-        $calendar = new Booker('2024', '08', '2024-08-20', 'Europe/Kyiv');
+        $calendar = new Booker('2024', '08', '2024-08-20', 'Europe/Copenhagen');
         $reflector = new \ReflectionClass($calendar);
         $function = $reflector->getMethod('bookedTimeslots');
         $this->assertContains('10:00:00', $function->invoke($calendar));
