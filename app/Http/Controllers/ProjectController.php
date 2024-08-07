@@ -21,9 +21,9 @@ class ProjectController extends Controller implements HasMiddleware
 
     public function index()
     {
-        $projects = Project::orderBy('updated_at', 'DESC')->simplePaginate(9);
+        $projects = Project::orderBy('created_at', 'DESC')->simplePaginate(9);
 
-        return view('sections.projects.index', [
+        return view('projects.index', [
             'projects' => $projects
         ]);
     }
@@ -32,7 +32,7 @@ class ProjectController extends Controller implements HasMiddleware
     {
         Gate::authorize('create', Project::class);
 
-        return view('sections.projects.create');
+        return view('projects.create');
     }
 
     public function store(StoreProjectRequest $request)
@@ -53,7 +53,7 @@ class ProjectController extends Controller implements HasMiddleware
 
     public function show(Project $project)
     {
-        return view('sections.projects.show', [
+        return view('projects.show', [
             'project' => $project
         ]);
     }
@@ -62,7 +62,7 @@ class ProjectController extends Controller implements HasMiddleware
     {
         Gate::authorize('update', $project);
 
-        return view('sections.projects.edit', [
+        return view('projects.edit', [
             'project' => $project
         ]);
     }

@@ -16,8 +16,8 @@ class IsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::user()->id != 1) {
-            return response()->json('You are not authorized to make this request.');
+        if (Auth::id() != 1) {
+            abort(404);
         }
         return $next($request);
     }

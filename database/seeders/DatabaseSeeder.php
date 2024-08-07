@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\Project;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,15 +15,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
-            'id' => 1,
-            'name' => 'Paolo',
-            'email' => 'hello@paolocatalan.com',
-            'password' => bcrypt('U9HsTpbxkbQjJVB'),
-            'email_verified_at' => now()
-        ]);
-
-        Project::factory(9)->create();
-        Booking::factory(12)->create();
+        User::factory()
+            ->count(3)
+            ->has(Project::factory()->count(3), 'project')
+            ->create();
+        Booking::factory()->count(9)->create();
     }
 }

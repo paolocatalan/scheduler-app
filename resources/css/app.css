@@ -67,16 +67,17 @@ pre.home-console {
   background-color: #0250bb;
 }
 
-.site-main {
+#page {
   max-width: 980px;
   padding-top: 12px;
   padding-right: 15px;
-  padding-bottom: 64px;
+  padding-bottom: 32px;
   padding-left: 15px;
 }
 
-.navbar {
-  padding: 12px 15px;
+.site-main {
+  padding-top: 16px;
+  padding-bottom: 32px;
 }
 
 .navbar ul {

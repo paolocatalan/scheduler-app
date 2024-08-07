@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use App\Models\Booking;
+use App\Models\User;
 use Tests\TestCase;
 
 class BookingTest extends TestCase
@@ -58,4 +59,11 @@ class BookingTest extends TestCase
         ]);
         $this->assertDatabaseCount('bookings', 1);
     }
+
+    // public function test_events_admin_access(): void
+    // {
+    //     $actor = User::factory()->create();
+    //     $response = $this->actingAs($actor)->get('/events');
+    //     $response->assertStatus(404);
+    // }
 }

@@ -2,15 +2,40 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Calendar;
 use Spatie\GoogleCalendar\Event;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Http\Request;
 
-class EventController extends Controller
+class EventController extends Controller //implements HasMiddleware
 {
+    // public static function middleware(): array
+    // {
+    //     return [
+    //         'auth',
+    //         'isAdmin'
+    //     ];
+    // }
+
     public function index()
     {
-        $events = Event::get(now(), now()->addMonth(2));
+        $events = Event::get(now(config('app.timezone_display')), now(config('app.timezone_display'))->addMonth(2));
         return view('events.index', [
             'events' => $events
+        ]);
+    }
+
+    public function showCalendar(Request $request, Calendar $calendar)
+    {
+        $calendar->build($request->date);
+
+        return view('bookings.index', [
+            'calendar' => $calendar,
+            'timezone' => 'Asia/Manila',
+            'date' => $request->date,
+            'year' => '2024',
+            'month'=>  '08'
         ]);
     }
 

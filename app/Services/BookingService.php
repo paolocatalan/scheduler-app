@@ -5,7 +5,7 @@ namespace App\Services;
 use Carbon\Carbon;
 use Spatie\GoogleCalendar\Event;
 
-class BookingServices
+class BookingService
 {
     public static function calendarEvent($startDateTime, $timezone, $attendee = null)
     {
@@ -37,6 +37,13 @@ class BookingServices
             report($exception);
             // dd(get_class($exception));
         }
+    }
+
+    public function booked()
+    {
+      return array(
+          '2024-09-02'
+      );
     }
 
 }

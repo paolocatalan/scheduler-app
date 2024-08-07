@@ -8,7 +8,7 @@ use App\Http\Helpers\Booker;
 use App\Http\Requests\StoreBookingRequest;
 use App\Mail\BookingSuccessMail;
 use App\Models\Booking;
-use App\Services\BookingServices;
+use App\Services\BookingService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cookie;
 
@@ -28,7 +28,7 @@ class BookingController extends Controller
             }
         }
 
-        return view('sections.bookings.index', [
+        return view('bookings.index', [
             'calendar' => $calendar,
             'timezone' => $timezone,
             'date' => $dateChecked->format('Y-m-d'),
@@ -43,7 +43,7 @@ class BookingController extends Controller
             return redirect('/schedule-a-call/?date' . date('Y-m-d'));
         }
 
-        return view('sections.bookings.create', [
+        return view('bookings.create', [
             'date' => $request->date,
             'timestamp' => $request->time,
             'timezone' => $request->timezone
@@ -60,7 +60,7 @@ class BookingController extends Controller
             'notes' => $request->notes
         ]);
 
-        // $meetingLink = BookingServices::calendarEvent($request->schedule_call, $request->timezone, $request->email);
+        // $meetingLink = BookingService::calendarEvent($request->schedule_call, $request->timezone, $request->email);
         // Mail::to('paolo_catalan@yahoo.com')->send(new BookingSuccessMail($request->name, $request->schedule_call, $meetingLink));
 
         return response()->noContent()
@@ -77,7 +77,7 @@ class BookingController extends Controller
             abort(404);
         }
 
-        return view('sections.bookings.success', [
+        return view('bookings.success', [
             'date' => $request->date,
             'timezone' => $request->timezone
         ]);

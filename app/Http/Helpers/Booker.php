@@ -135,7 +135,7 @@ class Booker
     return $bookedTimeslots;
   }
 
-  public function timeslots()
+  public function timeslots(): array
   {
     $openTime = self::timezoneConverter($this->dateTime->format('Y-m-d') . ' 9:00:00', $this->timezone, config('app.timezone_display'));
     $closeTime = self::timezoneConverter($this->dateTime->format('Y-m-d') . ' 17:00:00', $this->timezone, config('app.timezone_display'));

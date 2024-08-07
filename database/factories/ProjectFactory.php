@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,7 @@ class ProjectFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => 1,
+            'user_id' => User::factory(),
             'title' => $this->faker->sentence(),
             'slug' => $this->faker->slug(),
             'excerpt' => collect($this->faker->paragraphs(1))->map(fn($item) => "{$item}")->implode(''),
