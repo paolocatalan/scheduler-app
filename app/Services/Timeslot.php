@@ -9,20 +9,20 @@ use Illuminate\Support\Facades\Cookie;
 
 class Timeslot
 {
-    private CarbonImmutable $currentDateTime;
-
-    public function __construct()
+    public function __construct(
+        protected Scheduler $scheduler
+    )
     {
-        $this->currentDateTime = CarbonImmutable::now(config('app.timezone_display'));
+
     }
 
-    public function getBookedTimeslots(): array
+    public function retrive(Carbon $dateTime, Carbon $currentDateTime): array
     {
-      $bookings = Booking::where('schedule_call', '>', $this->currentDateTime)->get();
+      $bookings = Booking::where('schedule_call', '>', $currentDateTime)->get();
       $bookedTimeslots = array();
       foreach ($bookings as $booking) {
           $bookedDate = new Carbon($booking->schedule_call, $booking->timezone);
-          if ($bookedDate->format('Y-m-d') == $this->dateTime->format('Y-m-d')) {
+          if ($bookedDate->format('Y-m-d') == $dateTime->format('Y-m-d')) {
               $bookedTimeslot = new Carbon($booking->schedule_call, $booking->timezone);
               $bookedTimeslots[] = $bookedTimeslot->format('H:i:s');
           } else {
@@ -33,19 +33,19 @@ class Timeslot
       return $bookedTimeslots;
     }
 
-    public function timeslots(): array
+    public function convert(Carbon $dateTime, Carbon $currentDateTime, string $timezone): array
     {
-      $openTime = self::timezoneConverter($this->dateTime->format('Y-m-d') . ' 9:00:00', $this->timezone, config('app.timezone_display'));
-      $closeTime = self::timezoneConverter($this->dateTime->format('Y-m-d') . ' 17:00:00', $this->timezone, config('app.timezone_display'));
-  
-      $timeslots = array();
-      for ($t = $openTime->timestamp; $t < $closeTime->timestamp; $t+=1800) {
-          if ($this->dateTime->isToday()) {
-              if ($t < $this->currentDateTime->timestamp) continue;
-          }
-          $timeslots[] = Carbon::createFromTimestamp($t, $this->timezone)->format('H:i:s');
-      }
-  
-      return $timeslots;
+        $openTime = $this->scheduler->convertTimezone($dateTime->format('Y-m-d') . ' 9:00:00', $timezone, config('app.timezone_display'));
+        $closeTime = $this->scheduler->convertTimezone($dateTime->format('Y-m-d') . ' 17:00:00', $timezone, config('app.timezone_display'));
+    
+        $timeslots = array();
+        for ($t = $openTime->timestamp; $t < $closeTime->timestamp; $t+=1800) {
+            if ($dateTime->isToday()) {
+                if ($t < $currentDateTime->timestamp) continue;
+            }
+            $timeslots[] = Carbon::createFromTimestamp($t, $timezone)->format('H:i:s');
+        }
+    
+        return $timeslots;
     }
 }

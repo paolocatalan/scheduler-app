@@ -13,7 +13,7 @@ class Scheduler
         $this->currentDateTime = Carbon::now(config('app.timezone_display'));
     }
 
-    public function checkDate($date)
+    public function checkDate($date): Carbon
     {
         $dateTime = new Carbon($date, config('app.timezone_display'));
 
@@ -38,7 +38,12 @@ class Scheduler
     public function unavailableDates()
     {
         return array(
-            '2024-08-07'
+            '2024-09-19'
         );
+    }
+
+    public function convertTimezone($dateTime, $timezoneTo, $timezoneFrom): Carbon
+    {
+        return Carbon::createFromFormat('Y-m-d H:i:s', $dateTime, $timezoneFrom)->setTimezone($timezoneTo);
     }
 }
