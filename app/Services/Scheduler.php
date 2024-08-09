@@ -2,16 +2,22 @@
 
 namespace App\Services;
 
+use DateTime;
 use Carbon\Carbon;
+use Exception;
 
 class Scheduler
 {
-    public function checkDate(string $date): Carbon
+    public function checkDate($date): Carbon
     {
+        if ($this->parseDate($date) == false) {
+            return now(config('app.timezone_display'));
+        }
+
         $dateTime = new Carbon($date, config('app.timezone_display'));
 
-        if (now() > $dateTime) {
-            $dateTime = now();
+        if ($dateTime->isPast()) {
+            $dateTime = now(config('app.timezone_display'));
         }
 
         $unavailableDates = array( '2024-09-19' );
@@ -25,6 +31,19 @@ class Scheduler
         }
 
         return $dateTime;
+    }
+
+    public function parseDate($date): bool
+    {
+        DateTime::createFromFormat('Y-m-d', $date);
+        $errors = DateTime::getLastErrors();
+
+        if (!empty($errors)) {
+            return false;
+        }
+
+        return true;
+
     }
 
     public function convertTimezone($dateTime, $timezoneTo, $timezoneFrom): Carbon

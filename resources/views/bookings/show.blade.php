@@ -72,7 +72,7 @@
                     <label for="timezone">Timezone:</label>
                     <select name="timezone" id="timezone">
                         @foreach (timezone_identifiers_list() as $timezoneName )
-                        <option value="{{ $timezoneName }}" {{ $timezoneName == old('timezone') || $timezoneName == $timezone ? ' selected' : '' }}>{{ $timezoneName }}</option>
+                        <option value="{{ $timezoneName }}" {{ $timezoneName == old('timezone') || $timezoneName == $buildCalendar['timezone'] ? ' selected' : '' }}>{{ $timezoneName }}</option>
                         @endforeach
                     </select>
                 </form>
@@ -81,8 +81,8 @@
             <div class="calendar-timeslots">
                 <p><strong>{{ $dateTime->format('D') }}</strong> {{ $dateTime->format('j') }}</p>
                 <ul>
-                    @foreach ($buildTimeslots['list'] as $timeslot)
-                        @if (!empty($buildTimeslots['retrive']) && in_array($timeslot, $buildTimeslots['retrive']))
+                    @foreach ($buildCalendar['listTimeslot'] as $timeslot)
+                        @if (!empty($buildCalendar['retriveTimeslot']) && in_array($timeslot, $buildCalendar['retriveTimeslot']))
                             <li>{{ date('g:i a', strtotime($timeslot)) }}</li>
                         @else
                             <li><a hx-get="/schedule-a-call/introduction" hx-push-url="true" hx-target="#content-area" hx-select=".bookers-details">{{ date('g:i a', strtotime($timeslot)) }}</a></li>
@@ -90,7 +90,7 @@
                     @endforeach
                 </ul>
 
-                @if ($dateTime->isToday() && empty($buildTimeslots['list']))
+                @if ($dateTime->isToday() && empty($buildCalendar['listTimeslot']))
                     <p>Please consider rescheduling for tomorrow.</p>
                 @endif
             </div>

@@ -31,13 +31,12 @@ class EventController extends Controller implements HasMiddleware
     public function showCalendar(Request $request, Calendar $calendar, Scheduler $scheduler)
     {
         $dateTime = $scheduler->checkDate($request->date);
-        $timezone = (Cookie::has('timezone')) ? Cookie::get('timezone') : 'Europe/Kyiv';
+
+
 
         return view('bookings.show', [
             'dateTime' => $dateTime,
-            'timezone' => $timezone,
-            'buildCalendar' => $calendar->buildCalendar($dateTime),
-            'buildTimeslots' => $calendar->buildTimeslots($dateTime, $timezone)
+            'buildCalendar' => $calendar->buildCalendar($dateTime)
         ]);
     }
 

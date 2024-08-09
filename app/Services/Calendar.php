@@ -2,15 +2,14 @@
 
 namespace App\Services;
 
-use App\Services\Scheduler;
-use App\Services\Timeslot;
 use Carbon\Carbon;
 
 class Calendar
 {
     public function __construct(
         protected Scheduler $scheduler,
-        protected Timeslot $timeslot
+        protected Timeslot $timeslot,
+        protected Timezone $timezone
     )
     {
 
@@ -30,25 +29,19 @@ class Calendar
         $startOfCalendar =  $dateTime->copy()->firstOfMonth();
         $endOfCalendar = $dateTime->copy()->lastOfMonth();
 
+        $retriveTimeslot = $this->timeslot->retrive($dateTime);
+        $listTimeslot = $this->timeslot->list($dateTime, $this->timezone->select());
+
         return [
             'prevNavLink' => $prevNavLink,
             'nextNavLink' => $nextNavLink,
             'daysOfWeek' => $daysOfWeek,
             'dayOfWeek' => $dayOfWeek,
             'startOfCalendar' => $startOfCalendar,
-            'endOfCalendar' => $endOfCalendar
-        ];
-    }
-
-    public function buildTimeslots(Carbon $dateTime, string $timezone): array
-    {
-        $retrive = $this->timeslot->retrive($dateTime);
-
-        $list = $this->timeslot->list($dateTime, $timezone);
-
-        return [
-            'retrive' => $retrive,
-            'list' => $list
+            'endOfCalendar' => $endOfCalendar,
+            'retriveTimeslot' => $retriveTimeslot,
+            'listTimeslot' => $listTimeslot,
+            'timezone' => $this->timezone->select()
         ];
     }
 }
