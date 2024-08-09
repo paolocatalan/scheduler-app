@@ -6,23 +6,15 @@ use Carbon\Carbon;
 
 class Scheduler
 {
-    private Carbon $currentDateTime;
-
-    public function __construct()
-    {
-        $this->currentDateTime = Carbon::now(config('app.timezone_display'));
-    }
-
-    public function checkDate($date): Carbon
+    public function checkDate(string $date): Carbon
     {
         $dateTime = new Carbon($date, config('app.timezone_display'));
 
-        //check for past days
-        if ($this->currentDateTime > $dateTime) {
-            $dateTime = $this->currentDateTime;
+        if (now() > $dateTime) {
+            $dateTime = now();
         }
 
-        $unavailableDates = $this->unavailableDates();
+        $unavailableDates = array( '2024-09-19' );
 
         $isUnavailableOrDayOff = function ($dateTime) use ($unavailableDates) {
             return in_array($dateTime->format('Y-m-d'), $unavailableDates) || $dateTime->dayOfWeek == Carbon::SUNDAY;
@@ -33,13 +25,6 @@ class Scheduler
         }
 
         return $dateTime;
-    }
-
-    public function unavailableDates()
-    {
-        return array(
-            '2024-09-19'
-        );
     }
 
     public function convertTimezone($dateTime, $timezoneTo, $timezoneFrom): Carbon

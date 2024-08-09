@@ -23,7 +23,7 @@
                             @endfor
                         @endif
 
-                        @while ($buildCalendar['currentDay'] <= $dateTime->daysInMonth)
+                        @while ($buildCalendar['startOfCalendar'] <= $buildCalendar['endOfCalendar'])
                         
                             @if ($buildCalendar['dayOfWeek'] == 7)
                                 @php
@@ -32,28 +32,28 @@
                                 </tr><tr>
                             @endif
 
-                            @if ($calendar->dayInCarbon($dateTime, $buildCalendar['currentDay'])->isPast() || $calendar->dayInCarbon($dateTime, $buildCalendar['currentDay'])->isSunday())
-                                <td class="not-available"><span>{{ $buildCalendar['currentDay'] }}</span></td>
+                            @if ($buildCalendar['startOfCalendar'] < now(config('app.timezone_display'))->subDay() || $buildCalendar['startOfCalendar']->isSunday())
+                                <td class="not-available"><span>{{ $buildCalendar['startOfCalendar']->format('j') }}</span></td>
                             @else
                                 <td
-                                    @if ($dateTime->format('Y-m-d') == $calendar->dayInCarbon($dateTime, $buildCalendar['currentDay'])->format('Y-m-d'))
-                                        class="active"
-                                    @endif
+                                @if ($dateTime->format('Y-m-d') == $buildCalendar['startOfCalendar']->format('Y-m-d'))
+                                    class="active"
+                                @endif
                                 >
-                                    <a hx-get="/calendar/?date={{ $calendar->dayInCarbon($dateTime, $buildCalendar['currentDay'])->format('Y-m-d') }}" hx-push-url="true"  hx-target="#content-area" hx-select=".calendar">
+                                    <a hx-get="/calendar/?date={{ $buildCalendar['startOfCalendar']->format('Y-m-d') }}" hx-push-url="true"  hx-target="#content-area" hx-select=".calendar">
                                         <span
-                                        @if ($calendar->dayInCarbon($dateTime, $buildCalendar['currentDay'])->format('Y-m-d') == now(config('app.timezone_display'))->format('Y-m-d'))
+                                        @if ($buildCalendar['startOfCalendar']->isToday())
                                              class="today"
                                         @endif
                                         >
-                                            {{ $buildCalendar['currentDay'] }}
+                                            {{ $buildCalendar['startOfCalendar']->format('j') }}
                                         </span>
                                     </a>
                                 </td>
                             @endif
 
                             @php
-                                $buildCalendar['currentDay']++;
+                                $buildCalendar['startOfCalendar']->addDay();
                                 $buildCalendar['dayOfWeek']++;
                             @endphp
                         @endwhile
@@ -67,12 +67,22 @@
                     </tr>
                 </table>
 
+                <form method="post" action="{{ route('booking.timezone') }}" hx-post="{{ route('booking.timezone') }}" hx-trigger="change" hx-target="#content-area" hx-select=".calendar">
+                    @csrf
+                    <label for="timezone">Timezone:</label>
+                    <select name="timezone" id="timezone">
+                        @foreach (timezone_identifiers_list() as $timezoneName )
+                        <option value="{{ $timezoneName }}" {{ $timezoneName == old('timezone') || $timezoneName == $timezone ? ' selected' : '' }}>{{ $timezoneName }}</option>
+                        @endforeach
+                    </select>
+                </form>
+
             </div>
             <div class="calendar-timeslots">
                 <p><strong>{{ $dateTime->format('D') }}</strong> {{ $dateTime->format('j') }}</p>
                 <ul>
-                    @foreach ($buildTimeslots['convertTimeslots'] as $timeslot)
-                        @if (!empty($buildTimeslots['listTimeslots']) && in_array($timeslot, $buildTimeslots['listTimeslots']))
+                    @foreach ($buildTimeslots['list'] as $timeslot)
+                        @if (!empty($buildTimeslots['retrive']) && in_array($timeslot, $buildTimeslots['retrive']))
                             <li>{{ date('g:i a', strtotime($timeslot)) }}</li>
                         @else
                             <li><a hx-get="/schedule-a-call/introduction" hx-push-url="true" hx-target="#content-area" hx-select=".bookers-details">{{ date('g:i a', strtotime($timeslot)) }}</a></li>
@@ -80,7 +90,7 @@
                     @endforeach
                 </ul>
 
-                @if ($dateTime->isToday() && empty($buildTimeslots['convertTimeslots']))
+                @if ($dateTime->isToday() && empty($buildTimeslots['list']))
                     <p>Please consider rescheduling for tomorrow.</p>
                 @endif
             </div>

@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Services\Calendar;
 use App\Services\Scheduler;
+use Carbon\Carbon;
 use Spatie\GoogleCalendar\Event;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 
 class EventController extends Controller implements HasMiddleware
 {
@@ -29,12 +31,13 @@ class EventController extends Controller implements HasMiddleware
     public function showCalendar(Request $request, Calendar $calendar, Scheduler $scheduler)
     {
         $dateTime = $scheduler->checkDate($request->date);
+        $timezone = (Cookie::has('timezone')) ? Cookie::get('timezone') : 'Europe/Kyiv';
 
         return view('bookings.show', [
-            'calendar' => $calendar,
             'dateTime' => $dateTime,
+            'timezone' => $timezone,
             'buildCalendar' => $calendar->buildCalendar($dateTime),
-            'buildTimeslots' => $calendar->buildTimeslots($dateTime, 'Asia/Manila')
+            'buildTimeslots' => $calendar->buildTimeslots($dateTime, $timezone)
         ]);
     }
 
