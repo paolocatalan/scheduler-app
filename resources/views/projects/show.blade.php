@@ -22,7 +22,7 @@
   </article>
   <div>
     <p>Do you need help with your PHP project?</p>
-    <a class="button" href="/schedule-a-call/?date={{ date('Y-m-d') }}" hx-get="/schedule-a-call/?date={{ date('Y-m-d') }}" hx-target="body" hx-push-url="true">Schedule a Call</a>
+    <button class="button" hx-get="/schedule-a-call/?date={{ date('Y-m-d') }}" hx-target="body" hx-push-url="true">Schedule a Call</button>
   </div>
 </main>
 @endsection

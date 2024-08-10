@@ -50,6 +50,7 @@ pre.home-console {
 }
 
 .button {
+  cursor: pointer;
   background-color: #0060df;
   border: none;
   color: #fff;

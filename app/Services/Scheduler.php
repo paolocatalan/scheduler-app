@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use DateTime;
 use Carbon\Carbon;
+use DateTime;
 
 class Scheduler
 {
@@ -44,7 +44,7 @@ class Scheduler
 
     }
 
-    public function convertTimezone($dateTime, $timezoneTo, $timezoneFrom): Carbon
+    public function convertTimezone($dateTime, string $timezoneTo, string $timezoneFrom): Carbon
     {
         return Carbon::createFromFormat('Y-m-d H:i:s', $dateTime, $timezoneFrom)->setTimezone($timezoneTo);
     }

@@ -7,7 +7,6 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\EventController;
-use App\Services\Calendar;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 Route::get('/', function() {

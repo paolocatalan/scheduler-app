@@ -13,6 +13,6 @@
     <li>Strong communication skills to ensure clear and effective collaboration.</li>
   </ul>
   <p>Let's talk about your project, your goals and how I can help.</p>
-  <a class="button" href="/schedule-a-call/?date={{ date('Y-m-d') }}" hx-get="/schedule-a-call/?date={{ date('Y-m-d') }}" hx-target="body" hx-push-url="true">Schedule a Call</a>
+  <button class="button" hx-get="/schedule-a-call/?date={{ date('Y-m-d') }}" hx-target="body" hx-push-url="true">Schedule a Call</button>
 </main>
 @endsection

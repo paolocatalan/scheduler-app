@@ -3,38 +3,29 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
-use App\Http\Helpers\Booker;
-use App\Http\Requests\StoreBookingRequest;
-use App\Mail\BookingSuccessMail;
 use App\Models\Booking;
-use App\Services\BookingService;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Cookie;
+use App\Http\Requests\StoreBookingRequest;
+use App\Services\Calendar;
+use App\Services\Scheduler;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\BookingSuccessMail;
+use Carbon\Carbon;
 
 class BookingController extends Controller
 {
 
-    public function index(Request $request)
+    public function index(Request $request, Calendar $calendar, Scheduler $scheduler)
     {
-        $dateSelected = ($request->date) ? new Carbon($request->date) : Carbon::now();
-        $dateChecked = Booker::dateChecker($dateSelected->format('Y-m-d'));
-        $timezone = (Cookie::has('timezone')) ? Cookie::get('timezone') : 'Europe/Kyiv'; // get the clients timezone via cloudflare server variable
-        $calendar = new Booker($dateChecked->format('Y'), $dateChecked->format('m'), $dateChecked->format('Y-m-d'), $timezone);
-        
-        if (!$request->header('HX-Request')) {
-            if (!$request->date || $dateSelected->format('Y-m-d') != $dateChecked->format('Y-m-d')) {
-                return redirect( request()->url() . '/?date=' . $dateChecked->format('Y-m-d') );
-            }
+        $dateTime = $scheduler->checkDate($request->date);
+
+        if (!$request->header('HX-Request') && $request->date != $dateTime->format('Y-m-d')) {
+            return redirect(request()->url() . '/?date=' . $dateTime->format('Y-m-d'));
         }
 
         return view('bookings.index', [
-            'calendar' => $calendar,
-            'timezone' => $timezone,
-            'date' => $dateChecked->format('Y-m-d'),
-            'year' => $dateChecked->format('Y'),
-            'month'=>  $dateChecked->format('m')
+            'dateTime' => $dateTime,
+            'buildCalendar' => $calendar->buildCalendar($dateTime)
         ]);
     }
 
@@ -44,22 +35,18 @@ class BookingController extends Controller
             return redirect('/schedule-a-call/?date' . date('Y-m-d'));
         }
 
+        $timestamp = Carbon::createFromTimestamp($request->time, $request->timezone);
+
         return view('bookings.create', [
             'date' => $request->date,
-            'timestamp' => $request->time,
+            'timestamp' => $timestamp,
             'timezone' => $request->timezone
         ]);
     }
 
     public function store(StoreBookingRequest $request)
     {
-        Booking::create([
-            'schedule_call' => $request->schedule_call,
-            'timezone' => $request->timezone,
-            'name' => $request->name,
-            'email' => $request->email,
-            'notes' => $request->notes
-        ]);
+        Booking::create($request->validated());
 
         // $meetingLink = BookingService::calendarEvent($request->schedule_call, $request->timezone, $request->email);
         // Mail::to('paolo_catalan@yahoo.com')->send(new BookingSuccessMail($request->name, $request->schedule_call, $meetingLink));
@@ -74,7 +61,7 @@ class BookingController extends Controller
 
     public function success(Request $request)
     {
-        if ( !$request->date || !$request->timezone ) {
+        if (!$request->date || !$request->timezone) {
             abort(404);
         }
 
