@@ -4,13 +4,12 @@ namespace App\Services;
 
 use DateTime;
 use Carbon\Carbon;
-use Exception;
 
 class Scheduler
 {
     public function checkDate($date): Carbon
     {
-        if ($this->parseDate($date) == false) {
+        if ($this->isValidDate($date) == false) {
             return now(config('app.timezone_display'));
         }
 
@@ -33,12 +32,11 @@ class Scheduler
         return $dateTime;
     }
 
-    public function parseDate($date): bool
+    public function isValidDate($date): bool
     {
         DateTime::createFromFormat('Y-m-d', $date);
-        $errors = DateTime::getLastErrors();
 
-        if (!empty($errors)) {
+        if (!empty(DateTime::getLastErrors())) {
             return false;
         }
 

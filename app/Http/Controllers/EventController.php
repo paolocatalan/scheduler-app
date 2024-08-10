@@ -9,14 +9,13 @@ use Spatie\GoogleCalendar\Event;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cookie;
 
 class EventController extends Controller implements HasMiddleware
 {
     public static function middleware(): array
     {
         return [
-            'auth'
+            new Middleware('auth', except: ['showCalendar'])
         ];
     }
 
@@ -32,7 +31,9 @@ class EventController extends Controller implements HasMiddleware
     {
         $dateTime = $scheduler->checkDate($request->date);
 
-
+        if (!$request->header('HX-Request') && $request->date != $dateTime->format('Y-m-d')) {
+            return redirect( request()->url() . '/?date=' . $dateTime->format('Y-m-d') );
+        }
 
         return view('bookings.show', [
             'dateTime' => $dateTime,

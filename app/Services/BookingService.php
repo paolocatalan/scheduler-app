@@ -27,10 +27,10 @@ class BookingService
 
             return $calendarEvent->htmlLink;
         
-        } catch (\Google\Service\Exception $exception) {
+        } catch (\Google\Service\Exception $e) {
         
             report('Something went wrong with Google Services');
-            report($exception);
+            report($e);
         
         } catch (\Throwable $exception) {
         

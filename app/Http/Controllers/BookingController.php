@@ -11,6 +11,7 @@ use App\Models\Booking;
 use App\Services\BookingService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Session;
 
 class BookingController extends Controller
 {
@@ -85,8 +86,9 @@ class BookingController extends Controller
 
     public function setTimezone(Request $request)
     {
-        $timezoneCookie = Cookie::forever('timezone', $request->timezone); // one year
-        return back()->withCookie($timezoneCookie);
+        Session::put('timezone', $request->timezone);
+
+        return back();
     }
 
 }
