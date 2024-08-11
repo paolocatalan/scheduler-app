@@ -2,13 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Calendar;
-use App\Services\Scheduler;
-use Carbon\Carbon;
 use Spatie\GoogleCalendar\Event;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Http\Request;
 
 class EventController extends Controller implements HasMiddleware
 {
@@ -27,24 +23,12 @@ class EventController extends Controller implements HasMiddleware
         ]);
     }
 
-    public function showCalendar(Request $request, Calendar $calendar, Scheduler $scheduler)
-    {
-        $dateTime = $scheduler->checkDate($request->date);
-
-        if (!$request->header('HX-Request') && $request->date != $dateTime->format('Y-m-d')) {
-            return redirect( request()->url() . '/?date=' . $dateTime->format('Y-m-d') );
-        }
-
-        return view('bookings.show', [
-            'dateTime' => $dateTime,
-            'buildCalendar' => $calendar->buildCalendar($dateTime)
-        ]);
-    }
-
     public function create()
     {
         // $startDateTime = '2024-12-18 11:00:00';
         // $timezone = 'Europe/Warsaw';
+
+        // dd(\Carbon\Carbon::parse($startDateTime, $timezone));
         // $attendee = 'samaltman@openai.com';
 
         // $events = Spatie\GoogleCalendar\Event::get();
@@ -52,23 +36,18 @@ class EventController extends Controller implements HasMiddleware
         // $event->save();
         // return response()->json(['message' => 'saved event.']);
         // $event = Spatie\GoogleCalendar\Event::find('3lvkn81opdd59o121c3a466un8');
-        $event = Event::find('d1r7j6pluv0c9gn9cgne9i4468');
+        // $event = Event::find('d1r7j6pluv0c9gn9cgne9i4468');
 
-        //     $event = new Spatie\GoogleCalendar\Event;
-        //     $event->name = 'Intro and Diagnosis';
-        //     $event->startDateTime = \Carbon\Carbon::parse($startDateTime);
-        //     $event->endDateTime = \Carbon\Carbon::parse($startDateTime)->addMinute(30);
-        //     $event->start->timeZone = $timezone;
-        //     $event->end->timeZone = $timezone;
-        //     $event->addAttendee(['email' => $attendee]);
-        //     // $event->addMeetLink();
-        //     $event->save();
+        // $event = new \Spatie\GoogleCalendar\Event;
+        // $event->name = 'Intro and Diagnosis';
+        // $event->startDateTime = \Carbon\Carbon::parse($startDateTime);
+        // $event->endDateTime = \Carbon\Carbon::parse($startDateTime)->addMinute(30);
+        // $event->start->timeZone = $timezone;
+        // $event->end->timeZone = $timezone;
+        // $event->addAttendee(['email' => $attendee]);
 
+        // $event->save();
 
-        // $event = GoogleMeetController::create($eventTitle, $startDateTime, $timezone);
-        // $htmlLink = \App\Services\BookingServices::calendarEvent($startDateTime, $timezone, $attendee);
-
-        dd($event);
     }
 
     public function show(string $id)

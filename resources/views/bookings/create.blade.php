@@ -5,18 +5,18 @@
         <div class="bookers-details">
             <div>
                 <h2>Introduction and Diagnosis</h2>
-                <p>Date: {{ $timestamp->format('l, F j, Y') }}</p>
-                <p>Time: {{ $timestamp->format('g:i') .' - ' . $timestamp->addMinutes(30)->format('g:i a') }}</p>
+                <p>Date: {{ $dateTime->format('l, F j, Y') }}</p>
+                <p>Time: {{ $dateTime->format('g:i') .' - ' . $dateTime->addMinutes(30)->format('g:i a') }}</p>
                 <p>Duration: 30 minutes</p>
-                <p>Timezone: {{ str_replace('_', ' ', $timestamp->tzName) }}</p>
+                <p>Timezone: {{ str_replace('_', ' ', $dateTime->tzName) }}</p>
                 <p>Where: Google Meet</p>
             </div>
             <div>
                 <form method="post" action="/schedule-a-call" hx-post="/schedule-a-call" hx-target="#content-area" hx-select=".bookers-details" hx-indicator="#loading-indicator" hx-disinherit="hx-indicator">
                     @csrf
-                    <input type="hidden" id="schedule_call" name="schedule_call" value="{{ $timestamp->format('Y-m-d H:i:s') }}">
-                    <input type="hidden" id="timestamp" name="timestamp" value="{{ $timestamp }}">
-                    <input type="hidden" id="timezone" name="timezone" value="{{ $timestamp->tzName }}">
+                    <input type="hidden" id="schedule_call" name="schedule_call" value="{{ $dateTime->format('Y-m-d H:i:s') }}">
+                    <input type="hidden" id="timestamp" name="timestamp" value="{{ $dateTime->timestamp }}">
+                    <input type="hidden" id="timezone" name="timezone" value="{{ $dateTime->tzName }}">
                     @error('schedule_call')
                         <span style="color:#d32f2f;">{{ $message }}</span>
                     @enderror

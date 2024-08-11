@@ -10,7 +10,8 @@ use App\Services\Scheduler;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\BookingSuccessMail;
-use Carbon\Carbon;
+use App\Services\Booker;
+use Carbon\CarbonImmutable;
 
 class BookingController extends Controller
 {
@@ -35,28 +36,27 @@ class BookingController extends Controller
             return redirect('/schedule-a-call/?date' . date('Y-m-d'));
         }
 
-        $timestamp = Carbon::createFromTimestamp($request->time, $request->timezone);
+        $dateTime = CarbonImmutable::createFromTimestamp($request->time, $request->timezone);
 
         return view('bookings.create', [
             'date' => $request->date,
-            'timestamp' => $timestamp,
+            'dateTime' => $dateTime,
             'timezone' => $request->timezone
         ]);
     }
 
-    public function store(StoreBookingRequest $request)
+    public function store(StoreBookingRequest $request, Booker $booker)
     {
         Booking::create($request->validated());
 
-        // $meetingLink = BookingService::calendarEvent($request->schedule_call, $request->timezone, $request->email);
-        // Mail::to('paolo_catalan@yahoo.com')->send(new BookingSuccessMail($request->name, $request->schedule_call, $meetingLink));
+        $meetingLink = $booker->process($request->schedule_call, $request->timezone, $request->name, $request->email, $request->notes);
+        Mail::to('paolo_catalan@yahoo.com')->send(new BookingSuccessMail($request->name, $request->schedule_call, $meetingLink));
 
         return response()->noContent()
                 ->header('HX-Redirect', route('booking.success', [
                     'date' => $request->timestamp,
-                    'timezone' => $request->timezone,
+                    'timezone' => $request->timezone
                 ]));
-
     }
 
     public function success(Request $request)
@@ -65,8 +65,10 @@ class BookingController extends Controller
             abort(404);
         }
 
+        $dateTime = CarbonImmutable::createFromTimestamp($request->date, $request->timezone);
+
         return view('bookings.success', [
-            'date' => $request->date,
+            'date' => $dateTime,
             'timezone' => $request->timezone
         ]);
     }

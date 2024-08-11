@@ -13,16 +13,16 @@ class BookingSuccessMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $name, $date, $meetLink;
+    public $name, $date, $meetingLink;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($name, $date, $meetLink)
+    public function __construct($name, $date, $meetingLink)
     {
         $this->name = $name;
         $this->date = $date;
-        $this->meetLink = $meetLink;
+        $this->meetingLink = $meetingLink;
     }
 
     /**
