@@ -76,5 +76,4 @@ class BookingController extends Controller
 
         return back();
     }
-
 }

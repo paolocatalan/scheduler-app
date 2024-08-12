@@ -3,9 +3,6 @@
 namespace App\Services;
 
 use Carbon\Carbon;
-use App\Services\Scheduler;
-use App\Services\Timeslot;
-use App\Services\Timezone;
 
 class Calendar
 {

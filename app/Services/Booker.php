@@ -4,13 +4,15 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use Spatie\GoogleCalendar\Event;
-use Throwable;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\BookingSuccessMail;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class Booker
 {
+    protected EmailDeliverability $emailDeliverability;
+
     public function __construct(
         public array $bookingInfo
     )
@@ -20,6 +22,10 @@ class Booker
 
     public function process(): bool
     {
+        if ($this->emailDeliverability->state($this->bookingInfo['email']) == false) {
+            return false;
+        }
+
         try {
             $meetingLink = $this->create('meetLink');
 
@@ -36,17 +42,17 @@ class Booker
             // dd(get_class($exception));
             Log::critical('Google services error: '. $th->getMessage());
 
-            $meetingLink = null;
+            $meetingLink = 'Web conferencing details to follow.';
         }
 
         $mail = Mail::to($this->bookingInfo['email'])->send(new BookingSuccessMail($this->bookingInfo['name'], $this->bookingInfo['schedule_call'], $this->bookingInfo['timezone'], $meetingLink));
 
-        if ($mail) {
-            return true;
+        if (!$mail) {
+            Log::critical('Email not delivered.');
+            return false;
         }
 
-        return false;
-
+        return true;
     }
 
     public function create($link = null)
@@ -71,6 +77,4 @@ class Booker
         $calendarEvent = $event->save();
         return $calendarEvent->htmlLink;
     }
-
-
 }

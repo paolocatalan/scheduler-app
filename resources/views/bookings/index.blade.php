@@ -7,7 +7,7 @@
                 <div class="month-header">
                     <h2>{{ $dateTime->monthName }} {{ $dateTime->year }}</h2>
                     <nav>
-                        <button hx-get="/schedule-a-call/?date={{ $buildCalendar['prevNavLink'] }}" hx-push-url="true" hx-target="#content-area" hx-select=".calendar"@if ($dateTime->month == now()->format('m')) disabled="disabled"@endif>&lsaquo;</button><button hx-get="/schedule-a-call/?date={{ $buildCalendar['nextNavLink'] }}" hx-push-url="true" hx-target="#content-area" hx-select=".calendar">&rsaquo;</button>
+                        <button hx-get="/schedule-a-call/?date={{ $buildCalendar['prevNavLink'] }}" hx-push-url="true" hx-target="#content-area" hx-select=".calendar"@if ($dateTime->month == today()->format('m')) disabled="disabled"@endif>&lsaquo;</button><button hx-get="/schedule-a-call/?date={{ $buildCalendar['nextNavLink'] }}" hx-push-url="true" hx-target="#content-area" hx-select=".calendar">&rsaquo;</button>
                     </nav>
                 </div>
                 <table>
@@ -30,7 +30,7 @@
                                 @endphp
                                 </tr><tr>
                             @endif
-                            @if ($buildCalendar['startOfCalendar'] < now(config('app.timezone_display'))->subDay() || $buildCalendar['startOfCalendar']->isSunday())
+                            @if ($buildCalendar['startOfCalendar'] < today(config('app.timezone_display'))->subDay() || $buildCalendar['startOfCalendar']->isSunday())
                                 <td class="not-available"><span>{{ $buildCalendar['startOfCalendar']->format('j') }}</span></td>
                             @else
                                 <td

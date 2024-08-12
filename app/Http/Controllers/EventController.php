@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\EmailDeliverability;
 use Spatie\GoogleCalendar\Event;
 use Illuminate\Routing\Controllers\HasMiddleware;
 
@@ -22,8 +23,9 @@ class EventController extends Controller implements HasMiddleware
         ]);
     }
 
-    public function create()
+    public function create(EmailDeliverability $emailDeliverability)
     {
+        return response()->json($emailDeliverability->state('undeliverable@example.com'));
         // $startDateTime = '2024-12-18 11:00:00';
         // $timezone = 'Europe/Warsaw';
 
