@@ -32,8 +32,8 @@ class BookingController extends Controller
 
     public function create(Request $request)
     {
-        if (!$request->date || !$request->time || !$request->timezone) {
-            return redirect('/schedule-a-call/?date' . date('Y-m-d'));
+        if (!$request->has(['date', 'time', 'timezone'])) {
+            abort(404);
         }
 
         $dateTime = CarbonImmutable::createFromTimestamp($request->time, $request->timezone);
@@ -45,12 +45,12 @@ class BookingController extends Controller
         ]);
     }
 
-    public function store(StoreBookingRequest $request, Booker $booker)
+    public function store(StoreBookingRequest $request)
     {
         Booking::create($request->validated());
 
-        $meetingLink = $booker->process($request->schedule_call, $request->timezone, $request->name, $request->email, $request->notes);
-        Mail::to('paolo_catalan@yahoo.com')->send(new BookingSuccessMail($request->name, $request->schedule_call, $meetingLink));
+        $meetingLink = (new Booker($request->validated()))->process();
+        Mail::to('paolo_catalan@yahoo.com')->send(new BookingSuccessMail($request->name, $request->schedule_call, $request->timezone, $meetingLink));
 
         return response()->noContent()
                 ->header('HX-Redirect', route('booking.success', [
@@ -61,7 +61,7 @@ class BookingController extends Controller
 
     public function success(Request $request)
     {
-        if (!$request->date || !$request->timezone) {
+        if (!$request->has(['date', 'timezone'])) {
             abort(404);
         }
 

@@ -42,7 +42,7 @@
                         <a href="/schedule-a-call/?date={{ $date }}" hx-get="/schedule-a-call/?date={{ $date }}" hx-push-url="true" hx-target="#content-area" hx-select=".calendar">Back</a>
                         <input type="submit" value="Confirm">
                     </div>
-                    <p id="loading-indicator" class="htmx-indicator">Sending... Your form is on a mission through the interwebs! 🌐</p>
+                    <p id="loading-indicator" class="htmx-indicator">Sending<span class="dots"></span> Your form is on a mission through the interwebs! 🌐</p>
                 </form>
             </div>
         </div>

@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use Google\Service\CertificateAuthorityService\PublicKey;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -12,16 +13,18 @@ use Illuminate\Queue\SerializesModels;
 class BookingSuccessMail extends Mailable
 {
     use Queueable, SerializesModels;
-
-    public $name, $date, $meetingLink;
-
     /**
      * Create a new message instance.
      */
-    public function __construct($name, $date, $meetingLink)
+    public function __construct(
+        public string $name,
+        public string $date,
+        public string $timezone,
+        public string $meetingLink)
     {
         $this->name = $name;
         $this->date = $date;
+        $this->timezone = $timezone;
         $this->meetingLink = $meetingLink;
     }
 
