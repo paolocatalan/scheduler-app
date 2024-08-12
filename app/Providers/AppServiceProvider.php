@@ -6,11 +6,11 @@ use App\Http\Controllers\ProjectController;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Mail;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,6 +29,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if ($this->app->environment('local')) {
+            Mail::alwaysTo('paolo_catalan@yahoo.com');
+        }
+
         Model::preventLazyLoading();
 
         // create a super admin

@@ -7,7 +7,8 @@
   @else
     <p>Time: {{ $event->startDateTime }} - {{ $event->endDateTime }}</p>
   @endif
-  <p>Summary: {{ $event->description }}</p>
+  <p>Summary:<p>
+  {!! $event->description !!}
   <p>Meet Link: {{ $event->hangoutLink }}</p>
   <p>Link: <a href="{{ $event->htmlLink }}" target="_blank">{{ $event->htmlLink }}</a></p>
   @if ($event->attendees)

@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Booking;
 use App\Http\Requests\StoreBookingRequest;
+use App\Models\Booking;
 use App\Services\Calendar;
 use App\Services\Scheduler;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\BookingSuccessMail;
 use App\Services\Booker;
+use Illuminate\Support\Facades\Session;
 use Carbon\CarbonImmutable;
 
 class BookingController extends Controller
@@ -49,8 +47,7 @@ class BookingController extends Controller
     {
         Booking::create($request->validated());
 
-        $meetingLink = (new Booker($request->validated()))->process();
-        Mail::to('paolo_catalan@yahoo.com')->send(new BookingSuccessMail($request->name, $request->schedule_call, $request->timezone, $meetingLink));
+        (new Booker($request->validated()))->process();
 
         return response()->noContent()
                 ->header('HX-Redirect', route('booking.success', [

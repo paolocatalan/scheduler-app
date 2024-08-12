@@ -4,14 +4,13 @@ namespace App\Http\Controllers;
 
 use Spatie\GoogleCalendar\Event;
 use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 
 class EventController extends Controller implements HasMiddleware
 {
     public static function middleware(): array
     {
         return [
-            new Middleware('auth', except: ['showCalendar'])
+            'auth'
         ];
     }
 

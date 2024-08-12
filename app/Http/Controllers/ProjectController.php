@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
-use App\Services\Scheduler;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -16,7 +15,7 @@ class ProjectController extends Controller implements HasMiddleware
     {
         return [
             new Middleware('auth', except: ['index', 'show']),
-            new Middleware('isAdmin', only: ['create', 'store'])
+            new Middleware('isAdmin', only: ['create', 'edit'])
         ];
     }
 
@@ -31,23 +30,12 @@ class ProjectController extends Controller implements HasMiddleware
 
     public function create()
     {
-        Gate::authorize('create', Project::class);
-
         return view('projects.create');
     }
 
     public function store(StoreProjectRequest $request)
     {
-        Gate::authorize('create', Project::class);
-
-        Project::create([
-            'title' => $request->title,
-            'slug' => $request->slug,
-            'excerpt' => $request->excerpt,
-            'body' => $request->body,
-            'thumbnail' => $request->file('thumbnail')->store('thumbnails'),
-            'user_id' => auth()->user()->id
-        ]);
+        Project::create($request->validated());
 
         return redirect('/projects')->with('message', 'Your project has been added.');
     }
@@ -61,8 +49,6 @@ class ProjectController extends Controller implements HasMiddleware
 
     public function edit(Project $project)
     {
-        Gate::authorize('update', $project);
-
         return view('projects.edit', [
             'project' => $project
         ]);

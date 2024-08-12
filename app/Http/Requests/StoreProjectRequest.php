@@ -2,17 +2,19 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Project;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Gate;
 
 class StoreProjectRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
-    public function authorize(): bool
+    public function authorize()
     {
-        return true;
+        return Gate::authorize('create', Project::class);
     }
 
     /**
@@ -29,5 +31,14 @@ class StoreProjectRequest extends FormRequest
             'body' => ['required'],
             'thumbnail' => ['required', 'image']
         ];
+    }
+
+    public function validated($key = null, $default = null)
+    {
+        if (request()->isMethod('post')) {
+            return array_merge(parent::validated(), ['thumbnail' => $this->file('thumbnail')->store('thumbnails'), 'user_id' => auth()->user()->id]);
+        }
+
+        return parent::validated();
     }
 }
